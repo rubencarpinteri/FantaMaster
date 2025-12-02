@@ -342,6 +342,41 @@ export const getRivalryStatus = (matches: Match[], subject: string, opponent: st
   return null;
 };
 
+export const getH2HDescription = (matches: Match[], teamA: string, teamB: string): string => {
+  const history = matches.filter(m =>
+      m.isPlayed &&
+      ((m.homeTeam === teamA && m.awayTeam === teamB) ||
+       (m.homeTeam === teamB && m.awayTeam === teamA))
+  );
+
+  const total = history.length;
+  if (total === 0) return "Nessun precedente tra le due squadre.";
+
+  let winsA = 0;
+  let winsB = 0;
+  let draws = 0;
+
+  history.forEach(m => {
+      const isHomeA = m.homeTeam === teamA;
+      const scoreA = isHomeA ? m.homeScore! : m.awayScore!;
+      const scoreB = isHomeA ? m.awayScore! : m.homeScore!;
+
+      if (scoreA > scoreB) winsA++;
+      else if (scoreB > scoreA) winsB++;
+      else draws++;
+  });
+
+  if (winsA === 0 && winsB > 0) return `${teamA} non ha mai vinto contro ${teamB} (${winsB} sconfitte su ${total}).`;
+  if (winsB === 0 && winsA > 0) return `${teamB} non ha mai vinto contro ${teamA} (${winsA} sconfitte su ${total}).`;
+  if (draws === total) return "Le 2 squadre hanno pareggiato in ogni occasione.";
+  if (winsA === total) return `${teamA} ha vinto tutti i ${total} precedenti contro ${teamB}.`; // EZ Win variant
+  if (winsB === total) return `${teamB} ha vinto tutti i ${total} precedenti contro ${teamA}.`;
+
+  // General Case
+  // "4 precedenti tra le 2 squadre: 2 vittorie per Spiaze, 1 Pareggio, 1 vittoria per Isamu."
+  return `${total} precedenti: ${winsA} vittorie ${teamA}, ${draws} pareggi${draws === 1 ? 'o' : ''}, ${winsB} vittorie ${teamB}.`;
+};
+
 export const getHeadToHeadHistory = (matches: Match[], teamA: string, teamB: string) => {
   return matches.filter(m => 
       m.isPlayed && 

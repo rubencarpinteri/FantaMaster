@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Match, DEFAULT_TEAMS, Prediction, SchedinaSubmission, LegacySchedineData, SchedineAdjustment } from '../types';
-import { getRivalryStatus, getHeadToHeadHistory, calculateSchedineLeaderboard } from '../services/leagueService';
-import { RivalryIcon } from './RivalryIcon';
+import { getH2HDescription, getHeadToHeadHistory, calculateSchedineLeaderboard } from '../services/leagueService';
 import { Trophy, Clock, CheckCircle, User, History } from 'lucide-react';
 
 interface SchedineProps {
@@ -157,14 +156,13 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
 
                         <div className="space-y-4">
                             {nextMatches.map(match => {
-                                 const homeRival = getRivalryStatus(matches, match.awayTeam, match.homeTeam);
-                                 const awayRival = getRivalryStatus(matches, match.homeTeam, match.awayTeam);
+                                 const h2hDesc = getH2HDescription(matches, match.homeTeam, match.awayTeam);
                                  const h2h = getHeadToHeadHistory(matches, match.homeTeam, match.awayTeam);
 
                                  return (
                                      <div key={match.id} className="bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 transition-colors hover:border-blue-200 dark:hover:border-blue-900">
                                          {/* Mobile Layout: Stacked. Desktop: Row */}
-                                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-2">
                                              
                                              {/* Teams Container */}
                                              <div className="flex items-center justify-between w-full sm:w-auto sm:flex-1">
@@ -174,7 +172,6 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                                         <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center font-bold text-xs border border-gray-200 dark:border-gray-700 shadow-sm text-gray-900 dark:text-white">
                                                             {match.homeTeam[0]}
                                                         </div>
-                                                        <RivalryIcon type={homeRival} side="left" className="w-4 h-4 text-[8px]" />
                                                      </div>
                                                      <span className="font-bold text-sm text-gray-900 dark:text-white break-words leading-tight">{match.homeTeam}</span>
                                                  </div>
@@ -189,7 +186,6 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                                         <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center font-bold text-xs border border-gray-200 dark:border-gray-700 shadow-sm text-gray-900 dark:text-white">
                                                             {match.awayTeam[0]}
                                                         </div>
-                                                        <RivalryIcon type={awayRival} side="right" className="w-4 h-4 text-[8px]" />
                                                      </div>
                                                  </div>
                                              </div>
@@ -212,11 +208,35 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                              </div>
                                          </div>
                                          
+                                         <div className="text-[10px] text-gray-500 dark:text-gray-400 text-center sm:text-left mt-2 px-1 font-medium">
+                                             {h2hDesc}
+                                         </div>
+
+                                         {/* Full Match History */}
                                          {h2h.length > 0 && (
-                                             <div className="text-[10px] text-gray-500 flex justify-center items-center gap-1.5 bg-gray-100 dark:bg-gray-800 py-1.5 rounded-lg w-fit mx-auto px-3">
-                                                 <History size={10} />
-                                                 Last: {h2h[h2h.length-1].homeScore}-{h2h[h2h.length-1].awayScore} <span className="text-gray-400">(MD{h2h[h2h.length-1].matchday})</span>
-                                             </div>
+                                            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-800">
+                                                <div className="text-[10px] font-bold text-gray-400 uppercase mb-2">Previous Meetings</div>
+                                                <div className="space-y-1.5">
+                                                    {h2h.slice().reverse().map(m => (
+                                                        <div key={m.id} className="flex items-center justify-between text-[10px] bg-white dark:bg-gray-900/80 p-2 rounded-lg border border-gray-100 dark:border-gray-800/50">
+                                                            <div className="flex items-center gap-2 flex-1">
+                                                                <span className="font-mono text-gray-400 w-8">MD{m.matchday}</span>
+                                                                <span className={`${m.homeTeam === match.homeTeam ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                                    {m.homeTeam}
+                                                                </span>
+                                                            </div>
+                                                            <div className="font-mono font-bold text-gray-900 dark:text-white px-2">
+                                                                {m.homeScore}-{m.awayScore}
+                                                            </div>
+                                                            <div className="flex items-center justify-end gap-2 flex-1">
+                                                                <span className={`${m.awayTeam === match.awayTeam ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                                    {m.awayTeam}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
                                          )}
                                      </div>
                                  );

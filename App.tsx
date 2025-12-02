@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Trophy, Swords, Settings, CalendarDays, Ticket, Sun, Moon, LayoutGrid } from 'lucide-react';
 import { parseCSV, calculateCampionato, calculateBattleRoyale, calculateSchedineLeaderboard } from './services/leagueService';
@@ -10,7 +11,7 @@ import { Schedine } from './components/Schedine';
 import { Dashboard } from './components/Dashboard';
 import { INITIAL_CSV_DATA, LEGACY_SCHEDINE_DATA } from './data/seedData';
 
-const STORAGE_KEY = 'fantasy_matches_v7';
+const STORAGE_KEY = 'fantasy_matches_v8';
 const SCHEDINE_KEY = 'fantasy_schedine_v1';
 const SCHEDINE_ADJ_KEY = 'fantasy_schedine_adj_v1';
 
@@ -106,7 +107,7 @@ function App() {
 
     switch (activeTab) {
       case 'Dashboard':
-        return <Dashboard campionatoStats={campionatoStats} battleRoyaleStats={battleRoyaleStats} matches={matches} onNavigate={setActiveTab} onTeamClick={setSelectedTeam} />;
+        return <Dashboard campionatoStats={campionatoStats} battleRoyaleStats={battleRoyaleStats} matches={matches} schedineSubmissions={schedineSubmissions} onNavigate={setActiveTab} onTeamClick={setSelectedTeam} />;
       case Competition.CAMPIONATO:
         return <LeagueTable stats={campionatoStats} title="Campionato" type={Competition.CAMPIONATO} onTeamClick={setSelectedTeam} />;
       case Competition.BATTLE_ROYALE:

@@ -83,29 +83,29 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ matches, onTeamClick
             return (
               <div 
                 key={match.id} 
-                className="bg-white dark:bg-[#1c1c1e] rounded-2xl p-0 border border-gray-100 dark:border-gray-800 shadow-sm flex items-stretch overflow-hidden hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-stretch overflow-hidden hover:shadow-md transition-shadow h-32"
               >
                 {/* Left Side: Teams & Score */}
-                <div className="flex-1 p-4 flex flex-col justify-center gap-4">
+                <div className="flex-1 p-3 flex flex-col justify-center gap-3 min-w-0">
                     {/* Home Team Row */}
                     <div 
                         className={`flex items-center justify-between group ${onTeamClick ? 'cursor-pointer' : ''}`}
                         onClick={(e) => handleTeamClick(match.homeTeam, e)}
                     >
-                        <div className="flex items-center gap-3">
-                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border relative ${
+                        <div className="flex items-center gap-2 min-w-0">
+                             <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold border relative ${
                                 homeWinner 
                                 ? 'bg-white dark:bg-gray-800 text-green-500 border-green-500 shadow-sm' 
                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-gray-700'
                              }`}>
                                 {match.homeTeam.charAt(0)}
-                                <RivalryIcon type={homeRival} side="left" className="-top-1 -right-1 w-3 h-3 text-[6px]" />
+                                <RivalryIcon type={homeRival} side="left" className="-top-1 -right-1 w-2.5 h-2.5 text-[6px]" />
                              </div>
-                             <span className={`text-sm font-bold truncate max-w-[100px] ${homeWinner ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
+                             <span className={`text-xs font-bold truncate ${homeWinner ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
                                 {match.homeTeam}
                              </span>
                         </div>
-                        <span className={`font-mono font-bold text-sm ${homeWinner ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600'}`}>
+                        <span className={`font-mono font-bold text-xs ${homeWinner ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600'}`}>
                             {match.isPlayed ? match.homeScore : '-'}
                         </span>
                     </div>
@@ -115,48 +115,48 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ matches, onTeamClick
                         className={`flex items-center justify-between group ${onTeamClick ? 'cursor-pointer' : ''}`}
                         onClick={(e) => handleTeamClick(match.awayTeam, e)}
                     >
-                        <div className="flex items-center gap-3">
-                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border relative ${
+                        <div className="flex items-center gap-2 min-w-0">
+                             <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold border relative ${
                                 awayWinner 
                                 ? 'bg-white dark:bg-gray-800 text-green-500 border-green-500 shadow-sm' 
                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-gray-700'
                              }`}>
                                 {match.awayTeam.charAt(0)}
-                                <RivalryIcon type={awayRival} side="left" className="-top-1 -right-1 w-3 h-3 text-[6px]" />
+                                <RivalryIcon type={awayRival} side="left" className="-top-1 -right-1 w-2.5 h-2.5 text-[6px]" />
                              </div>
-                             <span className={`text-sm font-bold truncate max-w-[100px] ${awayWinner ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
+                             <span className={`text-xs font-bold truncate ${awayWinner ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
                                 {match.awayTeam}
                              </span>
                         </div>
-                        <span className={`font-mono font-bold text-sm ${awayWinner ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600'}`}>
+                        <span className={`font-mono font-bold text-xs ${awayWinner ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600'}`}>
                             {match.isPlayed ? match.awayScore : '-'}
                         </span>
                     </div>
                 </div>
 
                 {/* Vertical Divider */}
-                <div className="w-px bg-gray-100 dark:bg-gray-800 my-4"></div>
+                <div className="w-px bg-gray-100 dark:bg-gray-800 my-2"></div>
 
-                {/* Right Side: History / Details */}
-                <div className="w-28 bg-gray-50/50 dark:bg-gray-900/30 flex flex-col items-center justify-center p-2 text-center">
+                {/* Right Side: History / Details - Scrollable */}
+                <div className="w-24 bg-gray-50/50 dark:bg-gray-900/30 flex flex-col p-2 text-center overflow-y-auto custom-scrollbar">
                     {headToHead.length > 0 ? (
                         <div className="flex flex-col gap-1 w-full">
-                            <div className="flex items-center justify-center gap-1 text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-1">
-                                <History size={10} /> History
+                            <div className="flex items-center justify-center gap-1 text-[8px] font-bold text-blue-500 uppercase tracking-widest mb-1 sticky top-0 bg-gray-50 dark:bg-[#1c1c1e] py-0.5 rounded backdrop-blur-sm z-10">
+                                <History size={8} /> History
                             </div>
-                            {headToHead.slice(-3).reverse().map((h) => (
-                                <div key={h.id} className="flex justify-between items-center px-2 py-0.5 rounded hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                                    <span className="text-[9px] text-gray-400">MD{h.matchday}</span>
-                                    <span className="text-[10px] font-mono font-medium text-gray-700 dark:text-gray-300">
+                            {headToHead.slice().reverse().map((h) => (
+                                <div key={h.id} className="flex justify-between items-center px-1.5 py-0.5 rounded hover:bg-white dark:hover:bg-gray-800 transition-colors shrink-0">
+                                    <span className="text-[8px] text-gray-400">MD{h.matchday}</span>
+                                    <span className="text-[9px] font-mono font-medium text-gray-700 dark:text-gray-300">
                                         {h.homeScore}-{h.awayScore}
                                     </span>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center gap-1 opacity-50">
-                            <Hash size={16} className="text-gray-300" />
-                            <span className="text-[10px] text-gray-400 italic">No history</span>
+                        <div className="flex flex-col items-center justify-center h-full gap-1 opacity-50">
+                            <Hash size={14} className="text-gray-300" />
+                            <span className="text-[9px] text-gray-400 italic">No history</span>
                         </div>
                     )}
                 </div>

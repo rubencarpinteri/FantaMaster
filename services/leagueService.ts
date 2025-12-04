@@ -1,7 +1,5 @@
 import { Match, TeamStats, SchedinaSubmission, SchedinaLeaderboardRow, LegacySchedineData, SchedineAdjustment, FormResult, RivalryType } from '../types';
 
-export { RivalryType };
-
 export const parseCSV = (csvText: string): Match[] => {
   const lines = csvText.trim().split('\n');
   const matches: Match[] = [];

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Skull, Zap, Scale } from 'lucide-react';
-import { RivalryType } from '../services/leagueService';
+import { RivalryType } from '../types';
 
 interface RivalryIconProps {
   type: RivalryType;

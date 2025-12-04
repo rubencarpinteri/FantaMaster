@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Trophy, Swords, Settings, CalendarDays, Ticket, Sun, Moon, LayoutGrid } from 'lucide-react';
+import { Trophy, Swords, Settings, CalendarDays, Ticket, Sun, Moon, LayoutGrid, CloudOff, Cloud } from 'lucide-react';
 import { parseCSV, calculateCampionato, calculateBattleRoyale, calculateSchedineLeaderboard } from './services/leagueService';
 import { Match, Competition, SchedinaSubmission, SchedineAdjustment } from './types';
+import { 
+    supabase, 
+    saveData, 
+    subscribeToData 
+} from './services/supabase';
 import { LeagueTable } from './components/LeagueTable';
 import { AdminPanel } from './components/AdminPanel';
 import { CalendarView } from './components/CalendarView';
@@ -10,9 +15,8 @@ import { Schedine } from './components/Schedine';
 import { Dashboard } from './components/Dashboard';
 import { INITIAL_CSV_DATA, LEGACY_SCHEDINE_DATA } from './data/seedData';
 
-const STORAGE_KEY = 'fantasy_matches_v8';
-const SCHEDINE_KEY = 'fantasy_schedine_v1';
-const SCHEDINE_ADJ_KEY = 'fantasy_schedine_adj_v1';
+// Fallback localStorage key
+const BACKUP_STORAGE_KEY = 'fantasy_matches_backup_v10';
 
 function App() {
   const [matches, setMatches] = useState<Match[]>([]);
@@ -22,30 +26,62 @@ function App() {
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [isConnected, setIsConnected] = useState(false);
 
   // Initialize Data
   useEffect(() => {
-    const savedMatches = localStorage.getItem(STORAGE_KEY);
-    if (savedMatches) {
-      try {
-        const parsed = JSON.parse(savedMatches);
-        setMatches(parsed.length > 0 ? parsed : parseCSV(INITIAL_CSV_DATA));
-      } catch { setMatches(parseCSV(INITIAL_CSV_DATA)); }
-    } else {
-        setMatches(parseCSV(INITIAL_CSV_DATA));
-    }
+    const initApp = async () => {
+        // 1. Load Local Data First (Instant Load)
+        const localData = localStorage.getItem(BACKUP_STORAGE_KEY);
+        if (localData) {
+            try {
+                const parsed = JSON.parse(localData);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setMatches(parsed);
+                } else {
+                    setMatches(parseCSV(INITIAL_CSV_DATA));
+                }
+            } catch (e) {
+                setMatches(parseCSV(INITIAL_CSV_DATA));
+            }
+        } else {
+            setMatches(parseCSV(INITIAL_CSV_DATA));
+        }
 
-    const savedSchedine = localStorage.getItem(SCHEDINE_KEY);
-    if (savedSchedine) {
-        try { setSchedineSubmissions(JSON.parse(savedSchedine)); } catch (e) { console.error(e); }
-    }
+        // 2. Try Connecting to Cloud
+        if (supabase) {
+            setIsConnected(true);
+            
+            // Matches Subscription
+            subscribeToData('matches', (data) => {
+                if (data && Array.isArray(data) && data.length > 0) {
+                    setMatches(data);
+                }
+            });
 
-    const savedAdj = localStorage.getItem(SCHEDINE_ADJ_KEY);
-    if (savedAdj) {
-        try { setSchedineAdjustments(JSON.parse(savedAdj)); } catch (e) { console.error(e); }
-    }
+            // Schedine Subscription
+            subscribeToData('schedine', (data) => {
+                if (data && Array.isArray(data)) {
+                    setSchedineSubmissions(data);
+                }
+            });
 
-    setIsInitialized(true);
+            // Adjustments Subscription
+            subscribeToData('adjustments', (data) => {
+                if (data) {
+                    setSchedineAdjustments(data);
+                }
+            });
+
+        } else {
+            console.log("Running in Local Mode (Supabase keys missing)");
+            setIsConnected(false);
+        }
+        
+        setIsInitialized(true);
+    };
+
+    initApp();
   }, []);
 
   // Theme Handling
@@ -57,39 +93,57 @@ function App() {
       }
   }, [theme]);
 
-  // Persistence
-  useEffect(() => { if (matches.length > 0) localStorage.setItem(STORAGE_KEY, JSON.stringify(matches)); }, [matches]);
-  useEffect(() => { if (schedineSubmissions.length > 0) localStorage.setItem(SCHEDINE_KEY, JSON.stringify(schedineSubmissions)); }, [schedineSubmissions]);
-  useEffect(() => { localStorage.setItem(SCHEDINE_ADJ_KEY, JSON.stringify(schedineAdjustments)); }, [schedineAdjustments]);
+  // Local Backup Effect
+  useEffect(() => { 
+      if (matches.length > 0) {
+          localStorage.setItem(BACKUP_STORAGE_KEY, JSON.stringify(matches)); 
+      }
+  }, [matches]);
 
   const handleReset = () => {
-      if (window.confirm("Delete all data and revert to default?")) {
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem(SCHEDINE_KEY);
-          localStorage.removeItem(SCHEDINE_ADJ_KEY);
-          setMatches(parseCSV(INITIAL_CSV_DATA));
+      if (window.confirm("WARNING: This will reset the database for EVERYONE. Are you sure?")) {
+          const resetMatches = parseCSV(INITIAL_CSV_DATA);
+          setMatches(resetMatches);
           setSchedineSubmissions([]);
           setSchedineAdjustments({});
+          
+          if (supabase) {
+              saveData('matches', resetMatches);
+              saveData('schedine', []);
+              saveData('adjustments', {});
+          }
+          
           setActiveTab('Dashboard');
       }
   }
 
   const updateMatchResult = (id: string, homeScore: number | null, awayScore: number | null, hFP: number | null, aFP: number | null) => {
-    setMatches(prev => prev.map(m => m.id === id ? { ...m, homeScore, awayScore, homeFantasyPoints: hFP, awayFantasyPoints: aFP, isPlayed: homeScore !== null && awayScore !== null } : m));
+    const updatedMatches = matches.map(m => 
+        m.id === id ? { ...m, homeScore, awayScore, homeFantasyPoints: hFP, awayFantasyPoints: aFP, isPlayed: homeScore !== null && awayScore !== null } : m
+    );
+    // Optimistic update
+    setMatches(updatedMatches);
+    // Push to Cloud
+    if (supabase) saveData('matches', updatedMatches);
   };
 
   const handleSchedinaSubmit = (submission: SchedinaSubmission) => {
-      setSchedineSubmissions(prev => {
-          const filtered = prev.filter(s => !(s.teamName === submission.teamName && s.matchday === submission.matchday));
-          return [...filtered, submission];
-      });
+      const updatedSubmissions = schedineSubmissions.filter(s => !(s.teamName === submission.teamName && s.matchday === submission.matchday));
+      updatedSubmissions.push(submission);
+      
+      // Optimistic
+      setSchedineSubmissions(updatedSubmissions);
+      // Push to Cloud
+      if (supabase) saveData('schedine', updatedSubmissions);
   };
 
   const updateSchedineAdjustment = (team: string, extraCorrect: number, extraPerfect: number) => {
-      setSchedineAdjustments(prev => ({
-          ...prev,
+      const newAdj = {
+          ...schedineAdjustments,
           [team]: { extraCorrect, extraPerfect }
-      }));
+      };
+      setSchedineAdjustments(newAdj);
+      if (supabase) saveData('adjustments', newAdj);
   };
 
   const campionatoStats = useMemo(() => calculateCampionato(matches), [matches]);
@@ -101,7 +155,13 @@ function App() {
   );
 
   const renderContent = () => {
-    if (!isInitialized) return null;
+    if (!isInitialized) return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-[#000000]">
+            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <div className="text-gray-400 font-bold">Initializing Stadium...</div>
+        </div>
+    );
+    
     if (selectedTeam) return <TeamProfile teamName={selectedTeam} matches={matches} onBack={() => setSelectedTeam(null)} />;
 
     switch (activeTab) {
@@ -134,14 +194,25 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-[#000000] text-gray-900 dark:text-gray-100 transition-colors duration-300">
-        {/* Increased max-w to 1920px (basically full width on most screens) to allow 5 calendar items in a row */}
         <div className="container mx-auto px-4 py-8 max-w-[1920px]">
             {isInitialized && !selectedTeam && (
                 <header className="mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="text-center md:text-left">
-                        <h1 className="text-3xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                            FantaWizz CTA
-                        </h1>
+                        <div className="flex items-center justify-center md:justify-start gap-2">
+                            <h1 className="text-3xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                                FantaWizz CTA
+                            </h1>
+                            {!isConnected && (
+                                <span className="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full border border-gray-300 flex items-center gap-1 font-bold">
+                                    <CloudOff size={10} /> Local
+                                </span>
+                            )}
+                            {isConnected && (
+                                <span className="text-[10px] bg-green-100 text-green-600 px-2 py-0.5 rounded-full border border-green-200 flex items-center gap-1 font-bold">
+                                    <Cloud size={10} /> Sync
+                                </span>
+                            )}
+                        </div>
                         <p className="text-gray-500 dark:text-gray-400 text-xs font-medium mt-1 uppercase tracking-wide">
                             Manager Dashboard 25/26
                         </p>

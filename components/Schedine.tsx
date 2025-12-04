@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Match, DEFAULT_TEAMS, Prediction, SchedinaSubmission, LegacySchedineData, SchedineAdjustment } from '../types';
 import { getH2HDescription, getHeadToHeadHistory, calculateSchedineLeaderboard } from '../services/leagueService';
@@ -227,44 +228,47 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
 
                                  return (
                                      <div key={match.id} className="bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 transition-colors hover:border-blue-200 dark:hover:border-blue-900">
-                                         {/* Mobile Layout: Stacked. Desktop: Row */}
-                                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-2">
+                                         
+                                         {/* CLEAN STACKED LAYOUT */}
+                                         <div className="flex flex-col gap-4 mb-2">
                                              
-                                             {/* Teams Container */}
-                                             <div className="flex items-center justify-between w-full sm:w-auto sm:flex-1">
+                                             {/* Teams Row */}
+                                             <div className="flex items-center justify-between">
                                                  {/* Home Team */}
-                                                 <div className="flex items-center gap-3 w-[45%] sm:w-auto">
+                                                 <div className="flex items-center gap-3 flex-1 min-w-0">
                                                      <div className="relative flex-shrink-0">
-                                                        <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center font-bold text-xs border border-gray-200 dark:border-gray-700 shadow-sm text-gray-900 dark:text-white">
+                                                        <div className="w-9 h-9 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center font-bold text-xs border border-gray-200 dark:border-gray-700 shadow-sm text-gray-900 dark:text-white">
                                                             {match.homeTeam[0]}
                                                         </div>
                                                      </div>
-                                                     <span className="font-bold text-sm text-gray-900 dark:text-white break-words leading-tight">{match.homeTeam}</span>
+                                                     <span className="font-bold text-sm text-gray-900 dark:text-white truncate">{match.homeTeam}</span>
                                                  </div>
 
-                                                 {/* VS label for mobile */}
-                                                 <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase">VS</span>
+                                                 {/* VS label */}
+                                                 <div className="px-3">
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded border border-gray-100 dark:border-gray-700">VS</span>
+                                                 </div>
 
                                                  {/* Away Team */}
-                                                 <div className="flex items-center justify-end gap-3 w-[45%] sm:w-auto">
-                                                     <span className="font-bold text-sm text-gray-900 dark:text-white text-right break-words leading-tight">{match.awayTeam}</span>
+                                                 <div className="flex items-center justify-end gap-3 flex-1 min-w-0">
+                                                     <span className="font-bold text-sm text-gray-900 dark:text-white text-right truncate">{match.awayTeam}</span>
                                                      <div className="relative flex-shrink-0">
-                                                        <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center font-bold text-xs border border-gray-200 dark:border-gray-700 shadow-sm text-gray-900 dark:text-white">
+                                                        <div className="w-9 h-9 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center font-bold text-xs border border-gray-200 dark:border-gray-700 shadow-sm text-gray-900 dark:text-white">
                                                             {match.awayTeam[0]}
                                                         </div>
                                                      </div>
                                                  </div>
                                              </div>
 
-                                             {/* Buttons Container */}
-                                             <div className="flex gap-1 w-full sm:w-auto justify-center sm:justify-end">
+                                             {/* Buttons Row (Full Width) */}
+                                             <div className="grid grid-cols-3 gap-2">
                                                  {['1', 'X', '2'].map(opt => (
                                                      <button
                                                          key={opt}
                                                          onClick={() => handlePrediction(match.id, opt as any)}
-                                                         className={`w-full sm:w-12 h-12 sm:h-10 rounded-xl sm:rounded-lg font-bold text-lg sm:text-sm transition-all ${
+                                                         className={`h-11 rounded-xl font-bold text-sm transition-all ${
                                                              currentPredictions[match.id] === opt 
-                                                             ? 'bg-blue-500 text-white shadow-lg scale-105 ring-2 ring-blue-200 dark:ring-blue-900' 
+                                                             ? 'bg-blue-500 text-white shadow-lg scale-[1.02] ring-2 ring-blue-200 dark:ring-blue-900' 
                                                              : 'bg-white dark:bg-gray-800 text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
                                                          }`}
                                                      >
@@ -274,7 +278,7 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                              </div>
                                          </div>
                                          
-                                         <div className="text-[10px] text-gray-500 dark:text-gray-400 text-center sm:text-left mt-2 px-1 font-medium">
+                                         <div className="text-[10px] text-gray-500 dark:text-gray-400 text-center mt-3 px-1 font-medium italic">
                                              {h2hDesc}
                                          </div>
 
@@ -285,17 +289,17 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                                 <div className="space-y-1.5">
                                                     {h2h.slice().reverse().map(m => (
                                                         <div key={m.id} className="flex items-center justify-between text-[10px] bg-white dark:bg-gray-900/80 p-2 rounded-lg border border-gray-100 dark:border-gray-800/50">
-                                                            <div className="flex items-center gap-2 flex-1">
-                                                                <span className="font-mono text-gray-400 w-8">MD{m.matchday}</span>
-                                                                <span className={`${m.homeTeam === match.homeTeam ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                                <span className="font-mono text-gray-400 w-8 flex-shrink-0">MD{m.matchday}</span>
+                                                                <span className={`truncate ${m.homeTeam === match.homeTeam ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
                                                                     {m.homeTeam}
                                                                 </span>
                                                             </div>
                                                             <div className="font-mono font-bold text-gray-900 dark:text-white px-2">
                                                                 {m.homeScore}-{m.awayScore}
                                                             </div>
-                                                            <div className="flex items-center justify-end gap-2 flex-1">
-                                                                <span className={`${m.awayTeam === match.awayTeam ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                            <div className="flex items-center justify-end gap-2 flex-1 min-w-0">
+                                                                <span className={`truncate text-right ${m.awayTeam === match.awayTeam ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
                                                                     {m.awayTeam}
                                                                 </span>
                                                             </div>

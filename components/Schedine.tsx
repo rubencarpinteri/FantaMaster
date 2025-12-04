@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Match, DEFAULT_TEAMS, Prediction, SchedinaSubmission, LegacySchedineData, SchedineAdjustment } from '../types';
 import { getH2HDescription, getHeadToHeadHistory, calculateSchedineLeaderboard } from '../services/leagueService';
-import { Trophy, Clock, CheckCircle, User, History } from 'lucide-react';
+import { Trophy, Clock, CheckCircle, User, LogOut } from 'lucide-react';
 
 interface SchedineProps {
   matches: Match[];
@@ -12,33 +12,43 @@ interface SchedineProps {
 }
 
 const TEAM_ALIASES: Record<string, string> = {
-  // Spiaze
-  'SPIAZE': 'SPIAZE', 'SPI': 'SPIAZE',
-  // Rosaprofonda
-  'ROSAPROFONDA': 'ROSAPROFONDA', 'ROSA': 'ROSAPROFONDA', 'PFP': 'ROSAPROFONDA', 'RP': 'ROSAPROFONDA',
+  // Pronostici
+  'PRONOSTICI': 'PRONOSTICI', 'PRO': 'PRONOSTICI', 'PRONO': 'PRONOSTICI', 
   // Squadradabbattere
-  'SQUADRADABBATTERE': 'SQUADRADABBATTERE', 'UDB': 'SQUADRADABBATTERE', 'SDB': 'SQUADRADABBATTERE', 'UOMODABBATTERE': 'SQUADRADABBATTERE',
+  'SQUADRADABBATTERE': 'SQUADRADABBATTERE', 'UDB': 'SQUADRADABBATTERE', 'UOMODABBATTERE': 'SQUADRADABBATTERE', 'SDB': 'SQUADRADABBATTERE',
+  // Rosaprofonda
+  'ROSAPROFONDA': 'ROSAPROFONDA', 'ROS': 'ROSAPROFONDA', 'PFP': 'ROSAPROFONDA',
   // Off
   'OFF': 'OFF',
-  // Pronostici
-  'PRONOSTICI': 'PRONOSTICI', 'PRONO': 'PRONOSTICI', 'PRO': 'PRONOSTICI', 'CONTROTUTTIIPRONOSTICI': 'PRONOSTICI',
+  // Isamu
+  'ISAMU': 'ISAMU', 'ISA': 'ISAMU',
+  // Spiaze
+  'SPIAZE': 'SPIAZE', 'SPIA': 'SPIAZE', 'SPI': 'SPIAZE',
   // Horto
-  'HORTO': 'HORTO', 'HOR': 'HORTO', 'HORTO MUSO FC': 'HORTO',
-  // Ninuzzo
-  'NINUZZO': 'NINUZZO', 'NINO': 'NINUZZO', 'NIN': 'NINUZZO', 'CRO': 'NINUZZO', 'CRONACHE DI NINUZZO -3': 'NINUZZO',
+  'HORTO': 'HORTO', 'HOR': 'HORTO', 'HM': 'HORTO',
   // Satania
   'SATANIA': 'SATANIA', 'SAT': 'SATANIA',
-  // Isamu
-  'ISAMU': 'ISAMU', 'ISA': 'ISAMU', 'ISAMU FIGLIO DI UN DIO MINORE': 'ISAMU',
+  // Ninuzzo
+  'NINUZZO': 'NINUZZO', 'NINO': 'NINUZZO', 'NIN': 'NINUZZO', 'CRO': 'NINUZZO',
   // Sayonara
-  'SAYONARA': 'SAYONARA', 'SAYO': 'SAYONARA', 'SAY': 'SAYONARA'
+  'SAYONARA': 'SAYONARA', 'SAYO': 'SAYONARA', 'SAY': 'SAYONARA', 'NARA': 'SAYONARA'
 };
+
+const USER_STORAGE_KEY = 'fantasy_schedine_user_v1';
 
 export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustments, submissions, onSubmit }) => {
   const [activeTab, setActiveTab] = useState<'play' | 'leaderboard'>('play');
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [loginError, setLoginError] = useState('');
   const [currentPredictions, setCurrentPredictions] = useState<Record<string, '1' | 'X' | '2'>>({});
+
+  // Load saved user on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem(USER_STORAGE_KEY);
+    if (savedUser && DEFAULT_TEAMS.includes(savedUser)) {
+        setCurrentUser(savedUser);
+    }
+  }, []);
 
   const playedMatchdays = matches.filter(m => m.isPlayed).map(m => m.matchday);
   const maxPlayed = playedMatchdays.length > 0 ? Math.max(...playedMatchdays) : 0;
@@ -61,10 +71,17 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
 
       if (DEFAULT_TEAMS.includes(canonicalName)) {
           setCurrentUser(canonicalName);
+          localStorage.setItem(USER_STORAGE_KEY, canonicalName);
           setLoginError('');
       } else {
           setLoginError(`Team name '${rawInput}' not found.`);
       }
+  };
+
+  const handleLogout = () => {
+      setCurrentUser(null);
+      localStorage.removeItem(USER_STORAGE_KEY);
+      setCurrentPredictions({});
   };
 
   const handlePrediction = (matchId: string, value: '1' | 'X' | '2') => {
@@ -148,9 +165,18 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Matchday {nextMatchday}</h2>
                                 <p className="text-gray-500 text-sm">Make your 1X2 selections</p>
                             </div>
-                            <div className="text-right bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-xl">
-                                 <div className="text-[10px] text-blue-400 uppercase font-bold tracking-wider">Player</div>
-                                 <div className="font-bold text-blue-600 dark:text-blue-300">{currentUser}</div>
+                            <div className="flex items-center gap-3">
+                                <div className="text-right bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-xl">
+                                     <div className="text-[10px] text-blue-400 uppercase font-bold tracking-wider">Player</div>
+                                     <div className="font-bold text-blue-600 dark:text-blue-300">{currentUser}</div>
+                                </div>
+                                <button 
+                                    onClick={handleLogout}
+                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+                                    title="Logout"
+                                >
+                                    <LogOut size={18} />
+                                </button>
                             </div>
                         </div>
 
@@ -280,9 +306,9 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                             const pred = sub.predictions.find(p => p.matchId === m.id)?.prediction;
                                             if (!pred) return null;
                                             return (
-                                                <div key={i} className="flex flex-col items-center gap-1.5">
+                                                <div key={i} className="flex flex-col items-center gap-0.5">
                                                     <span 
-                                                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold border shadow-sm ${
+                                                        className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold border shadow-sm ${
                                                             pred === '1' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800' :
                                                             pred === 'X' ? 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700' :
                                                             'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800'

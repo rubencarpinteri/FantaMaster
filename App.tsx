@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Trophy, Swords, Settings, CalendarDays, Ticket, Sun, Moon, LayoutGrid } from 'lucide-react';
 import { parseCSV, calculateCampionato, calculateBattleRoyale, calculateSchedineLeaderboard } from './services/leagueService';
@@ -19,7 +18,7 @@ function App() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [schedineSubmissions, setSchedineSubmissions] = useState<SchedinaSubmission[]>([]);
   const [schedineAdjustments, setSchedineAdjustments] = useState<SchedineAdjustment>({});
-  const [activeTab, setActiveTab] = useState<Competition | 'Admin' | 'Calendar' | 'Schedine' | 'Dashboard'>('Dashboard');
+  const [activeTab, setActiveTab] = useState<Competition | 'Admin' | 'Calendar' | 'Schedine' | 'Dashboard'>('Schedine');
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
@@ -150,11 +149,11 @@ function App() {
                     
                     <div className="flex flex-col items-center md:items-end gap-3 w-full md:w-auto">
                         <div className="bg-white dark:bg-[#1c1c1e] p-1 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 flex flex-wrap justify-center gap-1">
+                            <NavButton active={activeTab === 'Schedine'} onClick={() => setActiveTab('Schedine')} icon={<Ticket size={16} />} label="Schedine" />
                             <NavButton active={activeTab === 'Dashboard'} onClick={() => setActiveTab('Dashboard')} icon={<LayoutGrid size={16} />} label="Home" />
                             <NavButton active={activeTab === Competition.CAMPIONATO} onClick={() => setActiveTab(Competition.CAMPIONATO)} icon={<Trophy size={16} />} label="Campionato" />
                             <NavButton active={activeTab === Competition.BATTLE_ROYALE} onClick={() => setActiveTab(Competition.BATTLE_ROYALE)} icon={<Swords size={16} />} label="Royale" />
                             <NavButton active={activeTab === 'Calendar'} onClick={() => setActiveTab('Calendar')} icon={<CalendarDays size={16} />} label="Calendar" />
-                            <NavButton active={activeTab === 'Schedine'} onClick={() => setActiveTab('Schedine')} icon={<Ticket size={16} />} label="Schedine" />
                         </div>
                         
                         <div className="flex items-center gap-2">

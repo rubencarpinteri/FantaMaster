@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Match, DEFAULT_TEAMS, Prediction, SchedinaSubmission, LegacySchedineData, SchedineAdjustment } from '../types';
 import { getH2HDescription, getHeadToHeadHistory, calculateSchedineLeaderboard } from '../services/leagueService';
-import { Trophy, Clock, CheckCircle, User, LogOut } from 'lucide-react';
+import { Trophy, Clock, CheckCircle, User, LogOut, Info, Sparkles } from 'lucide-react';
 
 interface SchedineProps {
   matches: Match[];
@@ -107,6 +107,44 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
       alert("Submitted!");
   };
 
+  // Curiosities Logic (Italian)
+  const getCuriosities = () => {
+      if (currentWeekSubmissions.length < 2) return [];
+
+      const curiosities: { type: 'unanimous' | 'missing', text: string }[] = [];
+
+      nextMatches.forEach(match => {
+          const preds = currentWeekSubmissions
+              .map(s => s.predictions.find(p => p.matchId === match.id)?.prediction)
+              .filter(p => p);
+          
+          if (preds.length === 0) return;
+
+          // Check Unanimous
+          const allSame = preds.every(p => p === preds[0]);
+          if (allSame) {
+              const outcome = preds[0] === '1' ? match.homeTeam : preds[0] === '2' ? match.awayTeam : 'Pareggio';
+              curiosities.push({
+                  type: 'unanimous',
+                  text: `Tutti hanno scelto ${outcome} (${preds[0]}) per ${match.homeTeam.substring(0,3)} vs ${match.awayTeam.substring(0,3)}`
+              });
+          }
+
+          // Check Missing (e.g., Nobody picked X)
+          if (!preds.includes('X')) {
+               curiosities.push({ type: 'missing', text: `Nessuno crede nel pareggio tra ${match.homeTeam.substring(0,3)} e ${match.awayTeam.substring(0,3)}` });
+          } else if (!preds.includes('1')) {
+               curiosities.push({ type: 'missing', text: `Nessuno crede nella vittoria di ${match.homeTeam}.` });
+          } else if (!preds.includes('2')) {
+               curiosities.push({ type: 'missing', text: `Nessuno crede nella vittoria di ${match.awayTeam}.` });
+          }
+      });
+
+      return curiosities;
+  };
+
+  const curiosities = getCuriosities();
+
   if (!currentUser && activeTab === 'play') {
       return (
           <div className="flex flex-col items-center justify-center py-20 px-4">
@@ -137,7 +175,7 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="w-full max-w-[1920px] mx-auto space-y-8">
         {/* Navigation Tabs */}
         <div className="flex justify-center">
             <div className="bg-white dark:bg-[#1c1c1e] p-1.5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm inline-flex">
@@ -157,8 +195,10 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
         </div>
 
         {activeTab === 'play' && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+                
+                {/* COLUMN 1: Prediction Interface */}
+                <div className="space-y-6">
                     <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
                         <div className="flex justify-between items-center mb-8">
                             <div>
@@ -281,7 +321,26 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                     </div>
                 </div>
 
+                {/* COLUMN 2: Status & Feed */}
                 <div className="space-y-6">
+                    {/* Status List */}
+                    <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2 text-sm">
+                            <Info size={16} className="text-gray-400" /> Submission Status
+                        </h3>
+                        <div className="grid grid-cols-2 gap-2">
+                            {DEFAULT_TEAMS.map(team => {
+                                const submitted = currentWeekSubmissions.some(s => s.teamName === team);
+                                return (
+                                    <div key={team} className="flex items-center justify-between p-2 rounded-xl bg-gray-50 dark:bg-gray-900/50">
+                                        <span className="text-[10px] font-bold text-gray-600 dark:text-gray-300 truncate max-w-[80px]">{team}</span>
+                                        <span className={`w-2.5 h-2.5 rounded-full ${submitted ? 'bg-green-500 shadow-sm shadow-green-500/50' : 'bg-red-500 shadow-sm shadow-red-500/50'}`}></span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+
                     <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm sticky top-6">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                             <Clock size={18} className="text-orange-500" /> Live Feed
@@ -333,6 +392,48 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                 </div>
                             )}
                         </div>
+                    </div>
+                </div>
+
+                {/* COLUMN 3: Curiosities & Leaderboard Widget */}
+                <div className="space-y-6">
+                    {/* Curiosities Section */}
+                    {curiosities.length > 0 && (
+                        <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2 text-sm">
+                                <Sparkles size={16} className="text-purple-500" /> Curiosità Predictions
+                            </h3>
+                            <div className="space-y-2">
+                                {curiosities.map((c, i) => (
+                                    <div key={i} className={`p-3 rounded-xl text-xs border ${
+                                        c.type === 'unanimous' 
+                                        ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 border-purple-100 dark:border-purple-800' 
+                                        : 'bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 border-amber-100 dark:border-amber-800'
+                                    }`}>
+                                        {c.text}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Mini Leaderboard Widget */}
+                    <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm sticky top-6">
+                        <div className="p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20 flex items-center justify-between">
+                            <h3 className="font-bold text-gray-900 dark:text-white text-sm">Top 5 Leaderboard</h3>
+                            <button onClick={() => setActiveTab('leaderboard')} className="text-[10px] text-blue-500 font-bold uppercase hover:underline">View All</button>
+                        </div>
+                        <table className="w-full text-left text-xs">
+                            <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                                {leaderboard.slice(0, 5).map((row, idx) => (
+                                    <tr key={row.teamName} className={`${currentUser === row.teamName ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}>
+                                        <td className="px-4 py-3 font-mono text-gray-400 w-8">#{row.rank}</td>
+                                        <td className="px-4 py-3 font-bold text-gray-900 dark:text-white truncate max-w-[100px]">{row.teamName}</td>
+                                        <td className="px-4 py-3 text-right font-bold text-blue-600 dark:text-blue-400">{row.totalCorrect}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

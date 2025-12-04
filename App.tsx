@@ -137,6 +137,14 @@ function App() {
       if (supabase) saveData('schedine', updatedSubmissions);
   };
 
+  const handleDeleteSchedinaSubmission = (teamName: string, matchday: number) => {
+      if (window.confirm(`Delete submission for ${teamName} (MD ${matchday})?`)) {
+          const updatedSubmissions = schedineSubmissions.filter(s => !(s.teamName === teamName && s.matchday === matchday));
+          setSchedineSubmissions(updatedSubmissions);
+          if (supabase) saveData('schedine', updatedSubmissions);
+      }
+  };
+
   const updateSchedineAdjustment = (team: string, extraCorrect: number, extraPerfect: number) => {
       const newAdj = {
           ...schedineAdjustments,
@@ -186,7 +194,7 @@ function App() {
       case 'Schedine':
         return <Schedine matches={matches} legacyData={LEGACY_SCHEDINE_DATA} adjustments={schedineAdjustments} submissions={schedineSubmissions} onSubmit={handleSchedinaSubmit} />;
       case 'Admin':
-        return <AdminPanel matches={matches} schedineStats={schedineStats} adjustments={schedineAdjustments} onUpdateMatch={updateMatchResult} onUpdateSchedineAdjustment={updateSchedineAdjustment} onReset={handleReset} />;
+        return <AdminPanel matches={matches} schedineStats={schedineStats} adjustments={schedineAdjustments} submissions={schedineSubmissions} onUpdateMatch={updateMatchResult} onUpdateSchedineAdjustment={updateSchedineAdjustment} onDeleteSubmission={handleDeleteSchedinaSubmission} onReset={handleReset} />;
       default:
         return null;
     }

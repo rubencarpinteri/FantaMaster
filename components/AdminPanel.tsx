@@ -1,21 +1,31 @@
-import React, { useState } from 'react';
-import { Match, SchedineAdjustment, SchedinaLeaderboardRow } from '../types';
-import { Save, Lock, Unlock, Trash2, CalendarCheck, AlertCircle, Ticket, Edit3 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Match, SchedineAdjustment, SchedinaLeaderboardRow, SchedinaSubmission } from '../types';
+import { Save, Lock, Unlock, Trash2, CalendarCheck, AlertCircle, Ticket, Edit3, X } from 'lucide-react';
 
 interface AdminPanelProps {
   matches: Match[];
   schedineStats: SchedinaLeaderboardRow[];
   adjustments: SchedineAdjustment;
+  submissions?: SchedinaSubmission[];
   onUpdateMatch: (matchId: string, hScore: number | null, aScore: number | null, hFP: number | null, aFP: number | null) => void;
   onUpdateSchedineAdjustment: (team: string, extraCorrect: number, extraPerfect: number) => void;
+  onDeleteSubmission?: (teamName: string, matchday: number) => void;
   onReset: () => void;
 }
 
-export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, adjustments, onUpdateMatch, onUpdateSchedineAdjustment, onReset }) => {
+export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, adjustments, submissions = [], onUpdateMatch, onUpdateSchedineAdjustment, onDeleteSubmission, onReset }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState<'matches' | 'schedine'>('matches');
   const [filterMatchday, setFilterMatchday] = useState<number | 'all'>('all');
+
+  // Set default filter to the first unplayed matchday on mount
+  useEffect(() => {
+    const played = matches.filter(m => m.isPlayed).map(m => m.matchday);
+    const maxPlayed = played.length > 0 ? Math.max(...played) : 0;
+    const next = maxPlayed < 38 ? maxPlayed + 1 : 38;
+    setFilterMatchday(next);
+  }, [matches]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +40,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, 
   const filteredMatches = filterMatchday === 'all' 
     ? matches 
     : matches.filter(m => m.matchday === filterMatchday);
+
+  // Sort submissions by latest
+  const recentSubmissions = [...submissions].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   if (!isAuthenticated) {
     return (
@@ -140,6 +153,51 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, 
 
       {activeTab === 'schedine' && (
         <div className="space-y-6 animate-fadeIn">
+            {/* Recent Submissions Management */}
+            <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <div className="p-4 bg-gray-50/50 dark:bg-gray-800/20 border-b border-gray-100 dark:border-gray-800">
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">Manage Recent Submissions</h3>
+                </div>
+                <div className="max-h-60 overflow-y-auto">
+                    <table className="w-full text-left text-sm">
+                        <thead className="bg-gray-50 dark:bg-gray-800/50 text-gray-500 text-xs font-bold uppercase sticky top-0">
+                            <tr>
+                                <th className="px-4 py-3">Team</th>
+                                <th className="px-4 py-3">MD</th>
+                                <th className="px-4 py-3">Time</th>
+                                <th className="px-4 py-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                            {recentSubmissions.map((sub, idx) => (
+                                <tr key={idx} className="hover:bg-red-50/50 dark:hover:bg-red-900/10">
+                                    <td className="px-4 py-2 font-medium">{sub.teamName}</td>
+                                    <td className="px-4 py-2 text-gray-500">{sub.matchday}</td>
+                                    <td className="px-4 py-2 text-gray-400 font-mono text-xs">{new Date(sub.timestamp).toLocaleString()}</td>
+                                    <td className="px-4 py-2 text-right">
+                                        {onDeleteSubmission && (
+                                            <button 
+                                                onClick={() => onDeleteSubmission(sub.teamName, sub.matchday)}
+                                                className="p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                                title="Delete Submission"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                            {recentSubmissions.length === 0 && (
+                                <tr>
+                                    <td colSpan={4} className="px-4 py-8 text-center text-gray-400 text-xs">No recent submissions found.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Manual Adjustments */}
              <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-xl p-4 text-sm flex items-start gap-3">
                 <Edit3 size={18} className="text-purple-500 flex-shrink-0 mt-0.5"/>
                 <div className="text-purple-900 dark:text-purple-100">
@@ -217,7 +275,7 @@ const SchedineRowEditor: React.FC<{
                     type="number" 
                     value={extraCorrect}
                     onChange={(e) => handleChange(setExtraCorrect, e.target.value)}
-                    className="w-16 px-2 py-1 text-center bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                    className="w-16 px-2 py-1 text-center bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white"
                 />
             </td>
             <td className="px-6 py-4 text-center font-bold text-purple-600 dark:text-purple-400">
@@ -228,7 +286,7 @@ const SchedineRowEditor: React.FC<{
                     type="number" 
                     value={extraPerfect}
                     onChange={(e) => handleChange(setExtraPerfect, e.target.value)}
-                    className="w-16 px-2 py-1 text-center bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                    className="w-16 px-2 py-1 text-center bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white"
                 />
             </td>
             <td className="px-6 py-4 text-center">

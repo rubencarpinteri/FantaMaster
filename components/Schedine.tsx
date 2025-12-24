@@ -111,7 +111,7 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                  <h2 className="text-xl font-black mb-1 text-slate-900 dark:text-white tracking-tight uppercase">Accesso Schedine</h2>
                  <p className="text-slate-400/20 text-[9px] font-black uppercase tracking-[0.2em] mb-8">Identifica la tua squadra</p>
                  <form onSubmit={handleLogin} className="flex flex-col gap-4">
-                    <input name="username" type="text" autoFocus placeholder="NOME SQUADRA" className="bg-slate-50 dark:bg-brand-base border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3.5 text-center font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-accent uppercase placeholder:text-slate-300/10 placeholder:font-bold" />
+                    <input name="username" type="text" autoFocus placeholder="NOME SQUADRA" className="bg-slate-50 dark:bg-brand-base border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3.5 text-center font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-accent uppercase placeholder:text-slate-300/5 placeholder:font-black" />
                     {loginError && <p className="text-brand-danger text-[10px] font-bold uppercase tracking-wide">{loginError}</p>}
                     <button type="submit" className="bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-glow-blue grain transition-all active:scale-95">Entra nel sistema</button>
                  </form>
@@ -149,23 +149,21 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                  const h2hDesc = getH2HDescription(matches, match.homeTeam, match.awayTeam);
                                  return (
                                      <div key={match.id} className="bg-slate-50/50 dark:bg-brand-base/40 rounded-[1.2rem] md:rounded-[1.5rem] border border-slate-200 dark:border-white/5 overflow-hidden">
-                                         <div className="flex items-center p-3 md:p-5 gap-2 md:gap-3">
-                                             <div className="flex-1 flex items-center justify-end gap-2 min-w-0">
-                                                 <span className="font-bold text-[10px] md:text-sm uppercase text-slate-900 dark:text-slate-100 tracking-tight text-right truncate">{match.homeTeam}</span>
-                                                 <div className="w-7 h-7 md:w-10 md:h-10 bg-white dark:bg-brand-base rounded-lg flex items-center justify-center font-black text-xs md:text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 flex-shrink-0">{match.homeTeam[0]}</div>
+                                         <div className="flex items-center justify-between p-3 md:p-5 gap-2 md:gap-3 w-full">
+                                             <div className="flex-1 flex items-center justify-end min-w-0">
+                                                 <span className="font-black text-[10px] md:text-sm uppercase text-slate-900 dark:text-slate-100 tracking-tight text-right truncate">{match.homeTeam}</span>
                                              </div>
 
-                                             <div className="flex gap-1 justify-center flex-shrink-0">
+                                             <div className="flex gap-1 justify-center flex-shrink-0 px-2">
                                                  {['1', 'X', '2'].map(opt => (
                                                      <button key={opt} onClick={() => handlePrediction(match.id, opt as any)}
-                                                         className={`h-9 w-10 md:h-12 md:w-14 rounded-lg font-black text-xs transition-all border-2 ${currentPredictions[match.id] === opt ? 'bg-brand-accent text-white border-brand-accent shadow-glow-blue grain' : 'bg-white dark:bg-brand-card text-slate-400 border-slate-200 dark:border-white/10'}`}
+                                                         className={`h-9 w-10 md:h-12 md:w-14 rounded-lg font-black text-[10px] md:text-xs transition-all border-2 ${currentPredictions[match.id] === opt ? 'bg-brand-accent text-white border-brand-accent shadow-glow-blue grain' : 'bg-white dark:bg-brand-card text-slate-400 border-slate-200 dark:border-white/10'}`}
                                                      > {opt} </button>
                                                  ))}
                                              </div>
 
-                                             <div className="flex-1 flex items-center justify-start gap-2 min-w-0">
-                                                 <div className="w-7 h-7 md:w-10 md:h-10 bg-white dark:bg-brand-base rounded-lg flex items-center justify-center font-black text-xs md:text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 flex-shrink-0">{match.awayTeam[0]}</div>
-                                                 <span className="font-bold text-[10px] md:text-sm uppercase text-slate-900 dark:text-slate-100 tracking-tight text-left truncate">{match.awayTeam}</span>
+                                             <div className="flex-1 flex items-center justify-start min-w-0">
+                                                 <span className="font-black text-[10px] md:text-sm uppercase text-slate-900 dark:text-slate-100 tracking-tight text-left truncate">{match.awayTeam}</span>
                                              </div>
                                          </div>
                                          <div className="bg-slate-100/50 dark:bg-brand-base/20 px-3 py-1.5 md:px-4 md:py-2 border-t border-slate-200/50 dark:border-white/5 text-center">
@@ -188,7 +186,7 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                     <div className="bg-white dark:bg-brand-card rounded-[1.5rem] p-5 shadow-soft border border-gray-100 dark:border-white/5">
                         <header className="flex items-center gap-2 mb-4">
                             <ListChecks size={16} className="text-brand-accent" />
-                            <h3 className="font-bold text-[10px] uppercase tracking-widest text-slate-900 dark:text-slate-100">Status Team</h3>
+                            <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-900 dark:text-slate-100">STATUS SCHEDINE INVIATE</h3>
                         </header>
                         <div className="grid grid-cols-2 gap-2">
                             {DEFAULT_TEAMS.map(team => (

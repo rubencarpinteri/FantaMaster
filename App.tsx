@@ -158,7 +158,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#F8F9FB] dark:bg-brand-base text-gray-900 dark:text-slate-200 transition-colors duration-300">
         {isInitialized && !selectedTeam && (
-            <header className="sticky top-0 z-50 w-full bg-[#F8F9FB]/90 dark:bg-brand-base/90 backdrop-blur-md border-b border-gray-200 dark:border-white/5 transition-all duration-300 grain">
+            <header className="sticky top-0 z-50 w-full bg-[#F8F9FB]/40 dark:bg-brand-base/40 backdrop-blur-2xl border-b border-gray-200 dark:border-white/5 transition-all duration-300 grain">
                 <div className="container mx-auto px-4 py-3 md:py-4 max-w-[1400px] flex flex-col lg:flex-row justify-between items-center gap-4">
                     <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
                         <div className="flex items-center gap-2">

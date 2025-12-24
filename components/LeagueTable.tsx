@@ -69,11 +69,12 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
     { key: 'lost', label: 'P', w: '20px' },
     { key: 'gf', label: 'F', w: '22px' },
     { key: 'ga', label: 'S', w: '22px' },
+    { key: 'totalFP', label: 'FP', w: '28px' }, // Total FP instead of just GD/Points space on mobile
     { key: 'points', label: 'Pt', w: '26px' },
   ] as const;
 
-  // Mobile Grid Template: Team Name (min 60px) + 7 stat columns (fixed widths) + Form area (50px)
-  const mobileGridTemplate = `minmax(60px, 1fr) repeat(7, minmax(20px, auto)) 50px`;
+  // Mobile Grid Template: Team Name (min 60px) + 8 stat columns (fixed widths) + Form area (30px)
+  const mobileGridTemplate = `minmax(60px, 1fr) repeat(8, minmax(18px, auto)) ${isBattleRoyale ? '0px' : '30px'}`;
 
   return (
     <div className="bg-white dark:bg-brand-card rounded-[2rem] md:rounded-[3rem] shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden transition-all duration-300 max-w-7xl mx-auto mb-10 animate-fadeIn">
@@ -100,10 +101,10 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
               <th className="px-6 py-6 text-left cursor-pointer" onClick={() => toggleSort('team')}>Squadra {getSortIcon('team')}</th>
               {['played', 'won', 'drawn', 'lost', 'gf', 'ga', 'points', 'totalFP'].map((col) => {
                   if ((col === 'gf' || col === 'ga') && !isCampionato) return null;
-                  const labels: Record<string, string> = { played: 'G', won: 'V', drawn: 'N', lost: 'P', gf: 'GF', ga: 'GS', points: 'Pt', totalFP: 'FP' };
-                  return <th key={col} className="px-3 py-6 text-center cursor-pointer" onClick={() => toggleSort(col as any)}>{labels[col]} {getSortIcon(col as any)}</th>;
+                  const labels: Record<string, string> = { played: 'G', won: 'V', drawn: 'N', lost: 'P', gf: 'GF', ga: 'GS', points: 'Pt', totalFP: 'FP Totali' };
+                  return <th key={col} className={`px-3 py-6 text-center cursor-pointer ${col === 'totalFP' ? 'font-black text-brand-accent' : ''}`} onClick={() => toggleSort(col as any)}>{labels[col]} {getSortIcon(col as any)}</th>;
               })}
-              <th className={`px-8 py-6 text-center uppercase ${isBattleRoyale ? 'hidden' : ''}`}>Form</th>
+              {!isCampionato && isBattleRoyale && <th className="px-8 py-6 text-center uppercase">Win Ratio</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -116,28 +117,26 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
                     <span className="group-hover:text-brand-accent transition-colors">{team.team}</span>
                 </td>
                 <td className="px-3 py-6 text-center text-slate-500 font-bold">{team.played}</td>
-                <td className="px-3 py-6 text-center text-slate-900 dark:text-slate-200 font-black">{team.won}</td>
+                <td className="px-3 py-6 text-center text-slate-900 dark:text-white font-black">{team.won}</td>
                 <td className="px-3 py-6 text-center text-slate-500 font-bold">{team.drawn}</td>
                 <td className="px-3 py-6 text-center text-slate-500 font-bold">{team.lost}</td>
                 {isCampionato && <><td className="px-3 py-6 text-center text-slate-400 font-bold">{team.gf}</td><td className="px-3 py-6 text-center text-slate-400 font-bold">{team.ga}</td></>}
                 <td className="px-3 py-6 text-center">
                     <span className="inline-block min-w-[42px] py-1.5 px-3.5 rounded-xl bg-slate-100 dark:bg-brand-base text-brand-accent font-black shadow-sm border border-brand-accent/20 text-lg grain">{team.points}</span>
                 </td>
-                <td className="px-3 py-6 text-center text-slate-400 dark:text-slate-500 font-mono text-[11px] font-black">{team.totalFP.toFixed(1)}</td>
-                <td className={`px-8 py-6 text-center ${isBattleRoyale ? 'hidden' : ''}`}>
-                    <div className="flex justify-center gap-1">
-                      {team.form.slice(-5).map((r, i) => (
-                        <span key={i} className={`block w-2 h-7 rounded-full transition-all ${r.result === 'W' ? 'bg-brand-success shadow-glow-green' : r.result === 'D' ? 'bg-slate-300 dark:bg-slate-700' : 'bg-brand-danger shadow-glow-red'}`}></span>
-                      ))}
-                    </div>
-                </td>
+                <td className="px-3 py-6 text-center text-brand-accent font-black font-mono text-base">{team.totalFP.toFixed(1)}</td>
+                {!isCampionato && isBattleRoyale && (
+                    <td className="px-8 py-6 text-center font-bold text-slate-400">
+                        {((team.won / team.played) * 100).toFixed(0)}%
+                    </td>
+                )}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Mobile View - HIGH DENSITY GRID WITH GF/GS AND FORM */}
+      {/* Mobile View - HIGH DENSITY GRID WITH GF/GS, TOTAL FP AND FORM */}
       <div className="md:hidden divide-y divide-gray-100 dark:divide-white/5">
             <div className="bg-slate-50 dark:bg-brand-base/50 items-center px-4 py-3 border-b border-gray-100 dark:border-white/5 grid gap-0.5" style={{ gridTemplateColumns: mobileGridTemplate }}>
                 <span className="text-[8px] font-black text-slate-400 uppercase truncate">Squadra</span>
@@ -146,7 +145,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
                         {col.label}
                     </span>
                 ))}
-                <span className={`text-[8px] font-black text-slate-400 uppercase text-center ${isBattleRoyale ? 'opacity-0' : ''}`}>Form</span>
+                {!isBattleRoyale && <span className={`text-[8px] font-black text-slate-400 uppercase text-center`}>Form</span>}
             </div>
             {sortedStats.map((team) => (
                 <div key={team.team} className="px-4 py-3 cursor-pointer overflow-hidden transition-colors active:bg-slate-100 dark:active:bg-white/5" onClick={() => onTeamClick && onTeamClick(team.team)}>
@@ -161,15 +160,19 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
                             let textClass = "text-slate-500 font-bold";
                             if (col.key === 'points') textClass = "text-brand-accent font-black text-[11px]";
                             else if (col.key === 'won') textClass = "text-slate-900 dark:text-white font-black";
+                            else if (col.key === 'totalFP') textClass = "text-brand-accent font-mono font-black text-[8px]";
                             else if (col.key === 'gf' || col.key === 'ga') textClass = "text-slate-400 font-medium";
                             
-                            return <span key={col.key} className={`${textClass} text-[9px] text-center tabular-nums`}>{(team as any)[col.key]}</span>;
+                            const val = (team as any)[col.key];
+                            return <span key={col.key} className={`${textClass} text-[9px] text-center tabular-nums`}>{typeof val === 'number' && val % 1 !== 0 ? val.toFixed(0) : val}</span>;
                         })}
-                        <div className={`flex justify-center gap-0.5 ${isBattleRoyale ? 'opacity-0' : ''}`}>
-                             {team.form.slice(-5).map((r, i) => (
-                                <span key={i} className={`block w-1 h-3 rounded-full ${r.result === 'W' ? 'bg-brand-success' : r.result === 'D' ? 'bg-slate-300' : 'bg-brand-danger'}`}></span>
-                             ))}
-                        </div>
+                        {!isBattleRoyale && (
+                            <div className={`flex justify-center gap-0.5`}>
+                                 {team.form.slice(-5).map((r, i) => (
+                                    <span key={i} className={`block w-1 h-3 rounded-full ${r.result === 'W' ? 'bg-brand-success' : r.result === 'D' ? 'bg-slate-300' : 'bg-brand-danger'}`}></span>
+                                 ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             ))}

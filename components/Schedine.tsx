@@ -109,9 +109,9 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
              <div className="bg-white dark:bg-brand-card p-6 md:p-10 rounded-[2.5rem] shadow-soft border border-gray-100 dark:border-white/5 w-full max-w-sm text-center animate-fadeIn">
                  <div className="w-14 h-14 bg-brand-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glow-blue grain"><User className="w-7 h-7 text-brand-accent" /></div>
                  <h2 className="text-xl font-black mb-1 text-slate-900 dark:text-white tracking-tight uppercase">Accesso Schedine</h2>
-                 <p className="text-slate-400/30 text-[9px] font-black uppercase tracking-[0.2em] mb-8">Identifica la tua squadra</p>
+                 <p className="text-slate-400/20 text-[9px] font-black uppercase tracking-[0.2em] mb-8">Identifica la tua squadra</p>
                  <form onSubmit={handleLogin} className="flex flex-col gap-4">
-                    <input name="username" type="text" autoFocus placeholder="NOME SQUADRA" className="bg-slate-50 dark:bg-brand-base border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3.5 text-center font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-accent uppercase placeholder:text-slate-300/20 placeholder:font-bold" />
+                    <input name="username" type="text" autoFocus placeholder="NOME SQUADRA" className="bg-slate-50 dark:bg-brand-base border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3.5 text-center font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-accent uppercase placeholder:text-slate-300/10 placeholder:font-bold" />
                     {loginError && <p className="text-brand-danger text-[10px] font-bold uppercase tracking-wide">{loginError}</p>}
                     <button type="submit" className="bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-glow-blue grain transition-all active:scale-95">Entra nel sistema</button>
                  </form>
@@ -149,23 +149,23 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                  const h2hDesc = getH2HDescription(matches, match.homeTeam, match.awayTeam);
                                  return (
                                      <div key={match.id} className="bg-slate-50/50 dark:bg-brand-base/40 rounded-[1.2rem] md:rounded-[1.5rem] border border-slate-200 dark:border-white/5 overflow-hidden">
-                                         <div className="flex flex-col md:flex-row items-center p-2.5 md:p-5 gap-2 md:gap-3">
-                                             <div className="flex-1 flex items-center justify-between md:justify-end gap-2 w-full min-w-0">
-                                                 <span className="font-bold text-[11px] md:text-sm uppercase text-slate-900 dark:text-slate-100 tracking-tight text-right order-2 md:order-1 truncate flex-1">{match.homeTeam}</span>
-                                                 <div className="w-7 h-7 md:w-10 md:h-10 bg-white dark:bg-brand-base rounded-lg flex items-center justify-center font-black text-xs md:text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 order-1 md:order-2 flex-shrink-0">{match.homeTeam[0]}</div>
+                                         <div className="flex items-center p-3 md:p-5 gap-2 md:gap-3">
+                                             <div className="flex-1 flex items-center justify-end gap-2 min-w-0">
+                                                 <span className="font-bold text-[10px] md:text-sm uppercase text-slate-900 dark:text-slate-100 tracking-tight text-right truncate">{match.homeTeam}</span>
+                                                 <div className="w-7 h-7 md:w-10 md:h-10 bg-white dark:bg-brand-base rounded-lg flex items-center justify-center font-black text-xs md:text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 flex-shrink-0">{match.homeTeam[0]}</div>
                                              </div>
 
-                                             <div className="flex gap-1.5 justify-center flex-shrink-0">
+                                             <div className="flex gap-1 justify-center flex-shrink-0">
                                                  {['1', 'X', '2'].map(opt => (
                                                      <button key={opt} onClick={() => handlePrediction(match.id, opt as any)}
-                                                         className={`h-9 w-11 md:h-12 md:w-14 rounded-lg font-black text-xs transition-all border-2 ${currentPredictions[match.id] === opt ? 'bg-brand-accent text-white border-brand-accent shadow-glow-blue grain' : 'bg-white dark:bg-brand-card text-slate-400 border-slate-200 dark:border-white/10'}`}
+                                                         className={`h-9 w-10 md:h-12 md:w-14 rounded-lg font-black text-xs transition-all border-2 ${currentPredictions[match.id] === opt ? 'bg-brand-accent text-white border-brand-accent shadow-glow-blue grain' : 'bg-white dark:bg-brand-card text-slate-400 border-slate-200 dark:border-white/10'}`}
                                                      > {opt} </button>
                                                  ))}
                                              </div>
 
-                                             <div className="flex-1 flex items-center justify-between md:justify-start gap-2 w-full min-w-0">
+                                             <div className="flex-1 flex items-center justify-start gap-2 min-w-0">
                                                  <div className="w-7 h-7 md:w-10 md:h-10 bg-white dark:bg-brand-base rounded-lg flex items-center justify-center font-black text-xs md:text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 flex-shrink-0">{match.awayTeam[0]}</div>
-                                                 <span className="font-bold text-[11px] md:text-sm uppercase text-slate-900 dark:text-slate-100 tracking-tight text-left truncate flex-1">{match.awayTeam}</span>
+                                                 <span className="font-bold text-[10px] md:text-sm uppercase text-slate-900 dark:text-slate-100 tracking-tight text-left truncate">{match.awayTeam}</span>
                                              </div>
                                          </div>
                                          <div className="bg-slate-100/50 dark:bg-brand-base/20 px-3 py-1.5 md:px-4 md:py-2 border-t border-slate-200/50 dark:border-white/5 text-center">

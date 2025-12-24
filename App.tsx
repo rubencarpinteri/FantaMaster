@@ -89,6 +89,46 @@ function App() {
   const battleRoyaleStats = useMemo(() => calculateBattleRoyale(matches), [matches]);
   const schedineStats = useMemo(() => calculateSchedineLeaderboard(matches, schedineSubmissions, LEGACY_SCHEDINE_DATA, schedineAdjustments), [matches, schedineSubmissions, schedineAdjustments]);
 
+  const handleUpdateMatch = (id: string, hScore: number | null, aScore: number | null, hFP: number | null, aFP: number | null) => {
+    const updated = matches.map(m => m.id === id ? { ...m, homeScore: hScore, awayScore: aScore, homeFantasyPoints: hFP, awayFantasyPoints: aFP, isPlayed: hScore !== null } : m);
+    setMatches(updated);
+    if (supabase) saveData('matches', updated);
+  };
+
+  const handleUpdateAdjustment = (team: string, ec: number, ep: number) => {
+    const updated = { ...schedineAdjustments, [team]: { extraCorrect: ec, extraPerfect: ep } };
+    setSchedineAdjustments(updated);
+    if (supabase) saveData('adjustments', updated);
+  };
+
+  const handleDeleteSubmission = (teamName: string, matchday: number) => {
+    const updated = schedineSubmissions.filter(s => !(s.teamName === teamName && s.matchday === matchday));
+    setSchedineSubmissions(updated);
+    if (supabase) saveData('schedine', updated);
+  };
+
+  const handleToggleFreeze = (md: number) => {
+    const updated = frozenMatchdays.includes(md) ? frozenMatchdays.filter(f => f !== md) : [...frozenMatchdays, md];
+    setFrozenMatchdays(updated);
+    if (supabase) saveData('frozen', updated);
+  };
+
+  const handleReset = () => {
+    if (confirm("Sei sicuro di voler resettare TUTTI i dati?")) {
+        const defaultMatches = parseCSV(INITIAL_CSV_DATA);
+        setMatches(defaultMatches);
+        setSchedineSubmissions([]);
+        setSchedineAdjustments({});
+        setFrozenMatchdays([]);
+        if (supabase) {
+            saveData('matches', defaultMatches);
+            saveData('schedine', []);
+            saveData('adjustments', {});
+            saveData('frozen', []);
+        }
+    }
+  };
+
   const handleSchedinaSubmit = (submission: SchedinaSubmission) => {
     const updatedSubmissions = schedineSubmissions.filter(s => !(s.teamName === submission.teamName && s.matchday === submission.matchday));
     updatedSubmissions.push(submission);
@@ -110,7 +150,7 @@ function App() {
       case Competition.BATTLE_ROYALE: return <LeagueTable stats={battleRoyaleStats} title="Battle Royale" type={Competition.BATTLE_ROYALE} onTeamClick={setSelectedTeam} />;
       case 'Calendar': return <CalendarView matches={matches} frozenMatchdays={frozenMatchdays} onTeamClick={setSelectedTeam} />;
       case 'Schedine': return <Schedine matches={matches} legacyData={LEGACY_SCHEDINE_DATA} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onSubmit={handleSchedinaSubmit} />;
-      case 'Admin': return <AdminPanel matches={matches} schedineStats={schedineStats} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onUpdateMatch={() => {}} onUpdateSchedineAdjustment={() => {}} onDeleteSubmission={() => {}} onToggleFreeze={() => {}} onReset={() => {}} />;
+      case 'Admin': return <AdminPanel matches={matches} schedineStats={schedineStats} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onUpdateMatch={handleUpdateMatch} onUpdateSchedineAdjustment={handleUpdateAdjustment} onDeleteSubmission={handleDeleteSubmission} onToggleFreeze={handleToggleFreeze} onReset={handleReset} />;
       default: return null;
     }
   };

@@ -1,31 +1,34 @@
+
 import React, { useState, useEffect } from 'react';
 import { Match, SchedineAdjustment, SchedinaLeaderboardRow, SchedinaSubmission } from '../types';
-import { Save, Lock, Unlock, Trash2, CalendarCheck, AlertCircle, Ticket, Edit3, X } from 'lucide-react';
+import { Save, Lock, Unlock, Trash2, CalendarCheck, AlertCircle, Ticket, Edit3, X, Snowflake } from 'lucide-react';
 
 interface AdminPanelProps {
   matches: Match[];
   schedineStats: SchedinaLeaderboardRow[];
   adjustments: SchedineAdjustment;
   submissions?: SchedinaSubmission[];
+  frozenMatchdays: number[];
   onUpdateMatch: (matchId: string, hScore: number | null, aScore: number | null, hFP: number | null, aFP: number | null) => void;
   onUpdateSchedineAdjustment: (team: string, extraCorrect: number, extraPerfect: number) => void;
   onDeleteSubmission?: (teamName: string, matchday: number) => void;
+  onToggleFreeze: (matchday: number) => void;
   onReset: () => void;
 }
 
-export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, adjustments, submissions = [], onUpdateMatch, onUpdateSchedineAdjustment, onDeleteSubmission, onReset }) => {
+export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, adjustments, submissions = [], frozenMatchdays = [], onUpdateMatch, onUpdateSchedineAdjustment, onDeleteSubmission, onToggleFreeze, onReset }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState<'matches' | 'schedine'>('matches');
   const [filterMatchday, setFilterMatchday] = useState<number | 'all'>('all');
 
-  // Set default filter to the first unplayed matchday on mount
+  // Set default filter to the first unplayed/unfrozen matchday
   useEffect(() => {
     const played = matches.filter(m => m.isPlayed).map(m => m.matchday);
-    const maxPlayed = played.length > 0 ? Math.max(...played) : 0;
-    const next = maxPlayed < 38 ? maxPlayed + 1 : 38;
+    const maxMilestone = Math.max(0, ...played, ...frozenMatchdays);
+    const next = maxMilestone < 38 ? maxMilestone + 1 : 38;
     setFilterMatchday(next);
-  }, [matches]);
+  }, [matches, frozenMatchdays]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +44,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, 
     ? matches 
     : matches.filter(m => m.matchday === filterMatchday);
 
+  const isFrozen = filterMatchday !== 'all' && frozenMatchdays.includes(filterMatchday);
+
   // Sort submissions by latest
   const recentSubmissions = [...submissions].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
@@ -51,19 +56,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, 
           <Lock className="w-8 h-8 text-blue-500" />
         </div>
         <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Admin Login</h2>
-        <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm">Access restricted to league administrators</p>
-        
         <form onSubmit={handleLogin} className="flex flex-col gap-4 w-full max-w-xs px-6">
-          <div className="relative">
-            <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 dark:text-white transition-all"
-                placeholder="Password"
-            />
-          </div>
-          <button type="submit" className="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold text-white shadow-lg shadow-blue-500/30 transition-all active:scale-95">
+          <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl outline-none text-gray-900 dark:text-white"
+              placeholder="Password"
+          />
+          <button type="submit" className="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold text-white shadow-lg shadow-blue-500/30 transition-all">
               Enter
           </button>
         </form>
@@ -93,19 +94,30 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, 
 
         <div className="flex flex-wrap items-center gap-4">
             {activeTab === 'matches' && (
-                <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-400">Matchday:</span>
-                    <select 
-                        value={filterMatchday}
-                        onChange={(e) => setFilterMatchday(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
-                        className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm outline-none text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="all">All</option>
-                        {uniqueMatchdays.map(md => (
-                            <option key={md} value={md}>{md}</option>
-                        ))}
-                    </select>
-                </div>
+                <>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-400">Matchday:</span>
+                        <select 
+                            value={filterMatchday}
+                            onChange={(e) => setFilterMatchday(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+                            className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm outline-none text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="all">All</option>
+                            {uniqueMatchdays.map(md => (
+                                <option key={md} value={md}>{md} {frozenMatchdays.includes(md) ? '❄️' : ''}</option>
+                            ))}
+                        </select>
+                    </div>
+                    {typeof filterMatchday === 'number' && (
+                        <button 
+                            onClick={() => onToggleFreeze(filterMatchday)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${isFrozen ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700'}`}
+                        >
+                            <Snowflake size={14} className={isFrozen ? 'animate-pulse' : ''} />
+                            {isFrozen ? 'Unfreeze' : 'Freeze MD'}
+                        </button>
+                    )}
+                </>
             )}
             
             <button 
@@ -127,33 +139,36 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, 
       
       {activeTab === 'matches' && (
         <div className="space-y-6 animate-fadeIn">
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-4 text-sm flex items-start gap-3">
-                <AlertCircle size={18} className="text-blue-500 flex-shrink-0 mt-0.5"/>
-                <div className="text-blue-900 dark:text-blue-100">
-                    <span className="font-bold">Instructions:</span> Update 
-                    <span className="mx-1 font-bold">Goals</span> for Campionato & Battle Royale results.
-                    Update <span className="mx-1 font-bold">Fantasy Points (FP)</span> for records.
-                    Changes are saved automatically when you click Save.
+            {isFrozen && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-4 text-sm flex items-start gap-3">
+                    <Snowflake size={18} className="text-blue-500 flex-shrink-0 mt-0.5 animate-pulse"/>
+                    <div className="text-blue-900 dark:text-blue-100 font-medium">
+                        Matchday {filterMatchday} is currently <span className="font-bold">FROZEN</span>. It is treated as "completed" for the purposes of enabling the next week's predictions.
+                    </div>
                 </div>
-            </div>
+            )}
+            
+            {!isFrozen && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-4 text-sm flex items-start gap-3">
+                    <AlertCircle size={18} className="text-blue-500 flex-shrink-0 mt-0.5"/>
+                    <div className="text-blue-900 dark:text-blue-100">
+                        <span className="font-bold">Instructions:</span> Update 
+                        <span className="mx-1 font-bold">Goals</span> for results. Use 
+                        <span className="mx-1 font-bold">Freeze</span> if games are postponed.
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredMatches.map(match => (
                 <MatchEditor key={match.id} match={match} onSave={onUpdateMatch} />
                 ))}
             </div>
-            
-            {filteredMatches.length === 0 && (
-                <div className="text-center py-10 text-gray-400">
-                    No matches found for this filter.
-                </div>
-            )}
         </div>
       )}
 
       {activeTab === 'schedine' && (
         <div className="space-y-6 animate-fadeIn">
-            {/* Recent Submissions Management */}
             <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
                 <div className="p-4 bg-gray-50/50 dark:bg-gray-800/20 border-b border-gray-100 dark:border-gray-800">
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white">Manage Recent Submissions</h3>
@@ -179,7 +194,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, 
                                             <button 
                                                 onClick={() => onDeleteSubmission(sub.teamName, sub.matchday)}
                                                 className="p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                                                title="Delete Submission"
                                             >
                                                 <X size={14} />
                                             </button>
@@ -187,22 +201,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, 
                                     </td>
                                 </tr>
                             ))}
-                            {recentSubmissions.length === 0 && (
-                                <tr>
-                                    <td colSpan={4} className="px-4 py-8 text-center text-gray-400 text-xs">No recent submissions found.</td>
-                                </tr>
-                            )}
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            {/* Manual Adjustments */}
-             <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-xl p-4 text-sm flex items-start gap-3">
-                <Edit3 size={18} className="text-purple-500 flex-shrink-0 mt-0.5"/>
-                <div className="text-purple-900 dark:text-purple-100">
-                    <span className="font-bold">Schedine Overrides:</span> Here you can manually adjust the leaderboard scores. 
-                    The "Adjustment" value is added to the calculated score. Use negative numbers to subtract.
                 </div>
             </div>
 
@@ -221,10 +221,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, schedineStats, 
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                         {schedineStats.map((stat) => {
                             const adj = adjustments[stat.teamName] || { extraCorrect: 0, extraPerfect: 0 };
-                            // We need to know the raw calculated score to show context. 
-                            // Since schedineStats already includes adjustments, Raw = Total - Adj
                             const rawTotal = stat.totalCorrect - adj.extraCorrect;
-                            
                             return (
                                 <SchedineRowEditor 
                                     key={stat.teamName} 
@@ -275,7 +272,7 @@ const SchedineRowEditor: React.FC<{
                     type="number" 
                     value={extraCorrect}
                     onChange={(e) => handleChange(setExtraCorrect, e.target.value)}
-                    className="w-16 px-2 py-1 text-center bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white"
+                    className="w-16 px-2 py-1 text-center bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg outline-none text-gray-900 dark:text-white"
                 />
             </td>
             <td className="px-6 py-4 text-center font-bold text-purple-600 dark:text-purple-400">
@@ -286,7 +283,7 @@ const SchedineRowEditor: React.FC<{
                     type="number" 
                     value={extraPerfect}
                     onChange={(e) => handleChange(setExtraPerfect, e.target.value)}
-                    className="w-16 px-2 py-1 text-center bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-white"
+                    className="w-16 px-2 py-1 text-center bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg outline-none text-gray-900 dark:text-white"
                 />
             </td>
             <td className="px-6 py-4 text-center">
@@ -328,9 +325,7 @@ const MatchEditor: React.FC<{ match: Match; onSave: (id: string, h: number | nul
     const af = parseLocalizedFloat(aFP);
     
     if (!isNaN(h) && !isNaN(a)) {
-      const cleanHF = isNaN(hf) ? 0 : hf;
-      const cleanAF = isNaN(af) ? 0 : af;
-      onSave(match.id, h, a, cleanHF, cleanAF);
+      onSave(match.id, h, a, isNaN(hf) ? 0 : hf, isNaN(af) ? 0 : af);
       setIsDirty(false);
     } else {
         alert("Please enter valid numbers.");
@@ -358,7 +353,7 @@ const MatchEditor: React.FC<{ match: Match; onSave: (id: string, h: number | nul
       
       <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-sm w-1/3 truncate text-gray-900 dark:text-white" title={match.homeTeam}>{match.homeTeam}</span>
+            <span className="font-semibold text-sm w-1/3 truncate text-gray-900 dark:text-white">{match.homeTeam}</span>
             <div className="flex items-center gap-2">
                 <div className="flex flex-col items-center">
                     <span className="text-[9px] text-gray-400 uppercase tracking-wider mb-0.5">FP</span>
@@ -367,8 +362,7 @@ const MatchEditor: React.FC<{ match: Match; onSave: (id: string, h: number | nul
                         inputMode="decimal"
                         value={hFP}
                         onChange={(e) => handleChange(setHFP, e.target.value)}
-                        placeholder="FP"
-                        className="w-14 h-8 text-center rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-blue-500 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-14 h-8 text-center rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-blue-500 font-medium outline-none"
                     />
                 </div>
                 <div className="flex flex-col items-center">
@@ -378,11 +372,7 @@ const MatchEditor: React.FC<{ match: Match; onSave: (id: string, h: number | nul
                         inputMode="decimal"
                         value={hScore}
                         onChange={(e) => handleChange(setHScore, e.target.value)}
-                        placeholder="-"
-                        className={`w-12 h-10 text-center rounded-lg text-lg font-bold border outline-none focus:ring-2 focus:ring-blue-500 transition-colors
-                            ${match.isPlayed 
-                                ? 'bg-white dark:bg-[#2c2c2e] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' 
-                                : 'bg-gray-100 dark:bg-gray-800 border-transparent text-gray-400'}`}
+                        className={`w-12 h-10 text-center rounded-lg text-lg font-bold border outline-none ${match.isPlayed ? 'bg-white dark:bg-[#2c2c2e] border-gray-200 dark:border-gray-700' : 'bg-gray-100 dark:bg-gray-800'}`}
                     />
                 </div>
             </div>
@@ -391,7 +381,7 @@ const MatchEditor: React.FC<{ match: Match; onSave: (id: string, h: number | nul
           <div className="h-px bg-gray-100 dark:bg-gray-800 w-full"></div>
 
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-sm w-1/3 truncate text-gray-900 dark:text-white" title={match.awayTeam}>{match.awayTeam}</span>
+            <span className="font-semibold text-sm w-1/3 truncate text-gray-900 dark:text-white">{match.awayTeam}</span>
              <div className="flex items-center gap-2">
                 <div className="flex flex-col items-center">
                     <input 
@@ -399,8 +389,7 @@ const MatchEditor: React.FC<{ match: Match; onSave: (id: string, h: number | nul
                         inputMode="decimal"
                         value={aFP}
                         onChange={(e) => handleChange(setAFP, e.target.value)}
-                        placeholder="FP"
-                        className="w-14 h-8 text-center rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-blue-500 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-14 h-8 text-center rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-blue-500 font-medium outline-none"
                     />
                 </div>
                 <div className="flex flex-col items-center">
@@ -409,11 +398,7 @@ const MatchEditor: React.FC<{ match: Match; onSave: (id: string, h: number | nul
                         inputMode="decimal"
                         value={aScore}
                         onChange={(e) => handleChange(setAScore, e.target.value)}
-                        placeholder="-"
-                        className={`w-12 h-10 text-center rounded-lg text-lg font-bold border outline-none focus:ring-2 focus:ring-blue-500 transition-colors
-                            ${match.isPlayed 
-                                ? 'bg-white dark:bg-[#2c2c2e] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white' 
-                                : 'bg-gray-100 dark:bg-gray-800 border-transparent text-gray-400'}`}
+                        className={`w-12 h-10 text-center rounded-lg text-lg font-bold border outline-none ${match.isPlayed ? 'bg-white dark:bg-[#2c2c2e] border-gray-200 dark:border-gray-700' : 'bg-gray-100 dark:bg-gray-800'}`}
                     />
                 </div>
             </div>
@@ -424,7 +409,7 @@ const MatchEditor: React.FC<{ match: Match; onSave: (id: string, h: number | nul
         <button 
           onClick={handleSave}
           disabled={!isDirty}
-          className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm ${isDirty ? 'bg-blue-500 hover:bg-blue-600 text-white scale-100' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed scale-95'}`}
+          className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${isDirty ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-md' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'}`}
         >
           <Save size={14} /> Save
         </button>

@@ -1,3 +1,4 @@
+
 export interface Match {
   id: string;
   matchday: number;
@@ -29,6 +30,7 @@ export interface TeamStats {
   ga: number; // Goals Against
   gd: number; // Goal Difference
   points: number;
+  totalFP: number; // Total Fantasy Points
   form: FormResult[]; 
 }
 

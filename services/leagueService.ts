@@ -1,3 +1,4 @@
+
 import { Match, TeamStats, SchedinaSubmission, SchedinaLeaderboardRow, LegacySchedineData, SchedineAdjustment, RivalryType } from '../types';
 
 export const parseCSV = (csvText: string): Match[] => {
@@ -189,6 +190,7 @@ const initializeStats = (teams: Set<string>): Map<string, TeamStats> => {
       ga: 0,
       gd: 0,
       points: 0,
+      totalFP: 0,
       form: []
     });
   });
@@ -219,6 +221,9 @@ export const calculateCampionato = (matches: Match[]): TeamStats[] => {
     home.ga += match.awayScore;
     away.gf += match.awayScore;
     away.ga += match.homeScore;
+    
+    home.totalFP += match.homeFantasyPoints || 0;
+    away.totalFP += match.awayFantasyPoints || 0;
 
     const hScoreStr = `${match.homeScore}-${match.awayScore}`;
     const aScoreStr = `${match.awayScore}-${match.homeScore}`;
@@ -250,6 +255,7 @@ export const calculateCampionato = (matches: Match[]): TeamStats[] => {
     gd: s.gf - s.ga
   })).sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points;
+    if (b.totalFP !== a.totalFP) return b.totalFP - a.totalFP;
     if (b.gd !== a.gd) return b.gd - a.gd;
     return b.gf - a.gf;
   }).map((s, i) => ({ ...s, rank: i + 1 }));
@@ -264,7 +270,7 @@ export const calculateBattleRoyale = (matches: Match[]): TeamStats[] => {
 
   const stats = initializeStats(teams);
   
-  const matchdays = new Map<number, { team: string, score: number }[]>();
+  const matchdays = new Map<number, { team: string, score: number, fp: number }[]>();
   
   matches.forEach(match => {
     if (!match.isPlayed || match.homeScore === null || match.awayScore === null) return;
@@ -272,8 +278,8 @@ export const calculateBattleRoyale = (matches: Match[]): TeamStats[] => {
     if (!matchdays.has(match.matchday)) {
       matchdays.set(match.matchday, []);
     }
-    matchdays.get(match.matchday)!.push({ team: match.homeTeam, score: match.homeScore });
-    matchdays.get(match.matchday)!.push({ team: match.awayTeam, score: match.awayScore });
+    matchdays.get(match.matchday)!.push({ team: match.homeTeam, score: match.homeScore, fp: match.homeFantasyPoints || 0 });
+    matchdays.get(match.matchday)!.push({ team: match.awayTeam, score: match.awayScore, fp: match.awayFantasyPoints || 0 });
   });
 
   matchdays.forEach((performances) => {
@@ -282,6 +288,7 @@ export const calculateBattleRoyale = (matches: Match[]): TeamStats[] => {
       const statsA = stats.get(teamA.team)!;
       
       statsA.played += 1; 
+      statsA.totalFP += teamA.fp;
 
       for (let j = 0; j < performances.length; j++) {
         if (i === j) continue;
@@ -306,12 +313,12 @@ export const calculateBattleRoyale = (matches: Match[]): TeamStats[] => {
     gd: 0 
   })).sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points;
+    if (b.totalFP !== a.totalFP) return b.totalFP - a.totalFP;
     return b.won - a.won;
   }).map((s, i) => ({ ...s, rank: i + 1 }));
 };
 
 // RIVALRY HELPERS
-
 export const getRivalryStatus = (matches: Match[], subject: string, opponent: string): RivalryType => {
   const history = matches.filter(m => 
       m.isPlayed && 
@@ -371,7 +378,6 @@ export const getH2HDescription = (matches: Match[], teamA: string, teamB: string
   if (winsB === total) return `${teamB} ha vinto tutti i ${total} precedenti contro ${teamA}.`;
 
   // General Case
-  // "4 precedenti tra le 2 squadre: 2 vittorie per Spiaze, 1 Pareggio, 1 vittoria per Isamu."
   return `${total} precedenti: ${winsA} vittorie ${teamA}, ${draws} pareggi${draws === 1 ? 'o' : ''}, ${winsB} vittorie ${teamB}.`;
 };
 
@@ -384,7 +390,6 @@ export const getHeadToHeadHistory = (matches: Match[], teamA: string, teamB: str
 };
 
 // SCHEDINE HELPERS
-
 export const calculateSchedineLeaderboard = (
   matches: Match[], 
   submissions: SchedinaSubmission[], 

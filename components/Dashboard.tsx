@@ -1,176 +1,168 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TeamStats, Match, SchedinaSubmission } from '../types';
-import { Trophy, Swords, CalendarDays, Ticket, ArrowRight } from 'lucide-react';
+import { Trophy, Swords, CalendarDays, Ticket, ArrowRight, Snowflake, Lightbulb } from 'lucide-react';
 
 interface DashboardProps {
   campionatoStats: TeamStats[];
   battleRoyaleStats: TeamStats[];
   matches: Match[];
   schedineSubmissions: SchedinaSubmission[];
+  frozenMatchdays: number[];
   onNavigate: (tab: any) => void;
   onTeamClick: (team: string) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoyaleStats, matches, schedineSubmissions, onNavigate, onTeamClick }) => {
-  // Calculate next matchday
+export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoyaleStats, matches, schedineSubmissions, frozenMatchdays = [], onNavigate, onTeamClick }) => {
   const playedMatchdays = matches.filter(m => m.isPlayed).map(m => m.matchday);
-  const maxPlayed = playedMatchdays.length > 0 ? Math.max(...playedMatchdays) : 0;
-  const nextMatchday = maxPlayed < 38 ? maxPlayed + 1 : 38;
+  const maxMilestone = Math.max(0, ...playedMatchdays, ...frozenMatchdays);
+  const nextMatchday = maxMilestone < 38 ? maxMilestone + 1 : 38;
   const nextMatches = matches.filter(m => m.matchday === nextMatchday);
-  const seasonProgress = Math.min(100, Math.round((maxPlayed / 38) * 100));
 
-  // Filter submissions for next matchday
   const recentSubmissions = schedineSubmissions
     .filter(s => s.matchday === nextMatchday)
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+  const curiosities = useMemo(() => {
+    if (recentSubmissions.length < 2) return [];
+    const results: string[] = [];
+    nextMatches.forEach(match => {
+      const matchSubs = recentSubmissions.flatMap(s => s.predictions.filter(p => p.matchId === match.id));
+      const counts = { '1': 0, 'X': 0, '2': 0 };
+      matchSubs.forEach(p => counts[p.prediction]++);
+      const total = matchSubs.length;
+      if (total === 0) return;
+
+      if (counts['X'] === total && total >= 2) {
+        results.push(`Tutti credono nel pareggio tra ${match.homeTeam} e ${match.awayTeam}`);
+      }
+      if (counts['1'] === 0 && total >= 2) {
+        results.push(`Nessuno crede nella vittoria di ${match.homeTeam}`);
+      }
+      if (counts['2'] === 0 && total >= 2) {
+        results.push(`Nessuno crede nella vittoria di ${match.awayTeam}`);
+      }
+    });
+    return results;
+  }, [recentSubmissions, nextMatches]);
+
   return (
-    <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
-      {/* Compact Banner */}
-      <div className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl px-5 py-3 text-white shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Left: Title & Context */}
-            <div className="flex items-center gap-4 w-full md:w-auto">
-                <div className="bg-white/10 p-2 rounded-xl backdrop-blur-sm">
-                    <Trophy size={20} className="text-yellow-300" />
+    <div className="max-w-[1400px] mx-auto space-y-10 animate-fadeIn">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        {/* Main Column */}
+        <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8 content-start h-fit">
+            {/* Campionato Preview */}
+            <div className="bg-white dark:bg-brand-card rounded-[2rem] shadow-soft border border-gray-100 dark:border-white/5 overflow-hidden flex flex-col transition-all duration-300 h-fit">
+                <div className="px-8 py-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-slate-50/50 dark:bg-brand-base/30">
+                    <div className="flex items-center gap-3 text-slate-700 dark:text-slate-100">
+                        <Trophy className="text-amber-500" size={20} />
+                        <h3 className="font-bold uppercase tracking-wider text-sm">Campionato</h3>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase">Turno {maxMilestone}</span>
                 </div>
-                <div>
-                    <h2 className="text-base font-bold leading-tight">Manager Dashboard</h2>
-                    <p className="text-blue-100 text-xs font-medium opacity-90">Season 25/26 • Matchday {maxPlayed}</p>
+                <div className="p-0 overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-sm min-w-[300px]">
+                        <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                            {campionatoStats.slice(0, 10).map((team) => (
+                                <tr key={team.team} className="group/row hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
+                                    <td className="px-8 py-4 w-12 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
+                                    <td className="px-4 py-4 font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
+                                    <td className="px-8 py-4 text-right">
+                                        <span className="font-bold text-slate-900 dark:text-white text-sm tabular-nums">{team.points}</span>
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase ml-1">pt</span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            
-            {/* Right: Progress & Action */}
-            <div className="flex items-center gap-6 w-full md:w-auto">
-                <div className="flex-1 md:w-48 space-y-1.5">
-                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-blue-200">
-                        <span>Progress</span>
-                        <span>{seasonProgress}%</span>
-                    </div>
-                    <div className="h-1.5 bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
-                        <div className="h-full bg-white/90 rounded-full transition-all duration-1000" style={{ width: `${seasonProgress}%` }}></div>
-                    </div>
-                </div>
-            </div>
-      </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Campionato Widget */}
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col h-full">
-            <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20">
-                <div className="flex items-center gap-2">
-                    <Trophy className="text-yellow-500" size={16} />
-                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">Campionato</h3>
+            {/* Battle Royale Preview */}
+            <div className="bg-white dark:bg-brand-card rounded-[2rem] shadow-soft border border-gray-100 dark:border-white/5 overflow-hidden flex flex-col transition-all duration-300 h-fit">
+                <div className="px-8 py-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-slate-50/50 dark:bg-brand-base/30">
+                    <div className="flex items-center gap-3 text-slate-700 dark:text-slate-100">
+                        <Swords className="text-brand-accent" size={20} />
+                        <h3 className="font-bold uppercase tracking-wider text-sm">Battle Royale</h3>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase">Turno {maxMilestone}</span>
                 </div>
-            </div>
-            <div className="p-0 flex-1">
-                <table className="w-full text-sm">
-                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                        {campionatoStats.map((team) => (
-                            <tr key={team.team} className="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
-                                <td className="px-5 py-3 w-10 text-center font-bold text-gray-400 text-xs">#{team.rank}</td>
-                                <td className="px-5 py-3 font-bold text-gray-900 dark:text-white group-hover:text-blue-500 transition-colors text-xs">{team.team}</td>
-                                <td className="px-5 py-3 text-right font-mono font-bold text-gray-900 dark:text-white text-xs">{team.points} <span className="text-[10px] text-gray-400 font-sans font-normal ml-1">pts</span></td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div className="p-0 overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-sm min-w-[300px]">
+                        <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                            {battleRoyaleStats.slice(0, 10).map((team) => (
+                                <tr key={team.team} className="group/row hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
+                                    <td className="px-8 py-4 w-12 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
+                                    <td className="px-4 py-4 font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
+                                    <td className="px-8 py-4 text-right">
+                                        <span className="font-bold text-slate-900 dark:text-white text-sm tabular-nums">{team.points}</span>
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase ml-1">pt</span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        {/* Battle Royale Widget */}
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col h-full">
-            <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20">
-                <div className="flex items-center gap-2">
-                    <Swords className="text-purple-500" size={16} />
-                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">Battle Royale</h3>
-                </div>
-            </div>
-            <div className="p-0 flex-1">
-                <table className="w-full text-sm">
-                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                        {battleRoyaleStats.map((team) => (
-                            <tr key={team.team} className="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
-                                <td className="px-5 py-3 w-10 text-center font-bold text-gray-400 text-xs">#{team.rank}</td>
-                                <td className="px-5 py-3 font-bold text-gray-900 dark:text-white group-hover:text-purple-500 transition-colors text-xs">{team.team}</td>
-                                <td className="px-5 py-3 text-right font-mono font-bold text-gray-900 dark:text-white text-xs">{team.points} <span className="text-[10px] text-gray-400 font-sans font-normal ml-1">pts</span></td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        {/* Right Column: Next Matchday & Live Feed */}
-        <div className="space-y-6 flex flex-col">
-            {/* Next Matchday Widget */}
-            <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col h-fit">
-                <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20">
-                    <div className="flex items-center gap-2">
-                        <CalendarDays className="text-blue-500" size={16} />
-                        <div>
-                            <h3 className="font-bold text-gray-900 dark:text-white text-sm">Next Matchday</h3>
-                        </div>
+        {/* Sidebar Column */}
+        <div className="lg:col-span-4 space-y-8">
+            <div className="bg-white dark:bg-brand-card rounded-[2rem] shadow-soft border border-gray-100 dark:border-white/5 overflow-hidden h-fit">
+                <div className="px-8 py-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-slate-50/50 dark:bg-brand-base/30">
+                    <div className="flex items-center gap-3 text-slate-700 dark:text-slate-100">
+                        <CalendarDays className="text-brand-accent" size={20} />
+                        <h3 className="font-bold uppercase tracking-wider text-xs">Calendario</h3>
                     </div>
-                    <span className="text-[10px] text-gray-500 font-bold uppercase bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">MD {nextMatchday}</span>
+                    <span className="text-[10px] text-brand-accent font-bold uppercase tracking-widest bg-brand-accent/10 px-3 py-1.5 rounded-xl border border-brand-accent/20 flex items-center gap-2 grain">
+                        Turno {nextMatchday}
+                        {frozenMatchdays.includes(nextMatchday) && <Snowflake size={12} className="animate-pulse" />}
+                    </span>
                 </div>
-                <div className="p-4 flex-1">
-                    <div className="space-y-3">
+                <div className="p-8">
+                    <div className="space-y-4">
                         {nextMatches.map(match => (
-                            <div key={match.id} className="flex justify-between items-center p-3 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-900 transition-colors">
-                                <span className="text-xs font-bold text-gray-900 dark:text-white w-24 truncate text-right">{match.homeTeam}</span>
-                                <span className="text-[9px] font-bold text-gray-400 px-2 uppercase">VS</span>
-                                <span className="text-xs font-bold text-gray-900 dark:text-white w-24 truncate text-left">{match.awayTeam}</span>
+                            <div key={match.id} className="flex justify-between items-center px-4 py-4 rounded-2xl bg-slate-50 dark:bg-brand-base border border-slate-100 dark:border-white/5 transition-transform hover:scale-[1.02]">
+                                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 w-20 truncate text-right uppercase tracking-wide">{match.homeTeam}</span>
+                                <span className="text-[9px] font-black text-slate-300 dark:text-slate-600 px-3 tracking-widest">VS</span>
+                                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 w-20 truncate text-left uppercase tracking-wide">{match.awayTeam}</span>
                             </div>
                         ))}
-                        {nextMatches.length === 0 && (
-                            <div className="text-center text-gray-400 py-8 text-sm">Season Finished</div>
-                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Live Predictions Widget */}
-            <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col flex-1">
-                 <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20">
-                    <div className="flex items-center gap-2">
-                        <Ticket className="text-orange-500" size={16} />
-                        <h3 className="font-bold text-gray-900 dark:text-white text-sm">Live Feed</h3>
+            <div className="bg-white dark:bg-brand-card rounded-[2rem] shadow-soft border border-gray-100 dark:border-white/5 overflow-hidden flex flex-col h-fit">
+                 <div className="px-8 py-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-slate-50/50 dark:bg-brand-base/30 text-slate-700 dark:text-slate-100">
+                    <div className="flex items-center gap-3">
+                        <Ticket className="text-orange-500" size={20} />
+                        <h3 className="font-bold uppercase tracking-wider text-xs">Live Feed</h3>
                     </div>
-                    {recentSubmissions.length > 0 && (
-                         <span className="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
-                    )}
+                    {recentSubmissions.length > 0 && <span className="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>}
                 </div>
-                <div className="p-4 flex-1 max-h-[400px] overflow-y-auto">
-                     <div className="space-y-3">
+                <div className="p-8">
+                     <div className="space-y-6">
                         {recentSubmissions.map((sub, idx) => (
-                            <div key={idx} className="flex flex-col gap-2 bg-gray-50 dark:bg-gray-900/50 p-3 rounded-2xl border-l-4 border-blue-500">
+                            <div key={idx} className="flex flex-col gap-4 bg-slate-50 dark:bg-brand-base/50 p-4 rounded-[1.5rem] border-l-4 border-brand-accent shadow-sm transition-all hover:bg-white dark:hover:bg-brand-card">
                                 <div className="flex justify-between items-start">
-                                    <div className="font-bold text-gray-900 dark:text-white text-xs">{sub.teamName}</div>
-                                    <div className="text-[9px] text-gray-400 font-mono text-right leading-tight">
-                                        <div>{new Date(sub.timestamp).toLocaleDateString('it-IT')}</div>
-                                        <div>{new Date(sub.timestamp).toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })}</div>
+                                    <div className="font-black text-[11px] text-slate-900 dark:text-slate-100 uppercase tracking-wide">{sub.teamName}</div>
+                                    <div className="text-[9px] text-slate-400 dark:text-slate-500 font-bold text-right uppercase tracking-widest leading-tight">
+                                        <div>{new Date(sub.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</div>
                                     </div>
                                 </div>
-                                <div className="flex justify-between gap-1 pt-1 border-t border-gray-200 dark:border-gray-800/50 mt-1">
-                                    {nextMatches.map((m, i) => {
-                                        const pred = sub.predictions.find(p => p.matchId === m.id)?.prediction;
-                                        if (!pred) return null;
+                                <div className="grid grid-cols-5 gap-2">
+                                    {sub.predictions.map((p, i) => {
+                                        const match = matches.find(m => m.id === p.matchId);
+                                        const homeInit = match?.homeTeam.substring(0, 3).toUpperCase() || '???';
+                                        const awayInit = match?.awayTeam.substring(0, 3).toUpperCase() || '???';
                                         return (
-                                            <div key={i} className="flex flex-col items-center gap-0.5">
-                                                <span 
-                                                    className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold border shadow-sm ${
-                                                        pred === '1' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800' :
-                                                        pred === 'X' ? 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700' :
-                                                        'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800'
-                                                    }`}
-                                                >
-                                                    {pred}
+                                            <div key={i} className="flex flex-col items-center gap-1.5">
+                                                <span className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-black border-2 shadow-sm grain ${p.prediction === '1' ? 'bg-brand-accent text-white border-brand-accent' : p.prediction === 'X' ? 'bg-slate-300 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-400/20' : 'bg-brand-danger text-white border-brand-danger'}`}>
+                                                    {p.prediction}
                                                 </span>
-                                                <div className="flex flex-col items-center leading-none">
-                                                     <span className="text-[7px] font-bold text-gray-400 uppercase">{m.homeTeam.substring(0,3)}</span>
-                                                     <span className="text-[7px] font-bold text-gray-400 uppercase">{m.awayTeam.substring(0,3)}</span>
+                                                <div className="bg-white/50 dark:bg-white/5 px-1 py-0.5 rounded border border-slate-200 dark:border-white/5">
+                                                    <div className="text-[7px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none text-center mb-0.5">{homeInit}</div>
+                                                    <div className="h-px bg-slate-200 dark:bg-white/10 w-full mb-0.5"></div>
+                                                    <div className="text-[7px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none text-center">{awayInit}</div>
                                                 </div>
                                             </div>
                                         );
@@ -179,24 +171,35 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                             </div>
                         ))}
                         {recentSubmissions.length === 0 && (
-                            <div className="text-center text-gray-400 py-6 text-xs italic">
-                                No predictions yet for MD {nextMatchday}.
-                            </div>
+                            <div className="text-center py-12 text-slate-400 dark:text-slate-600 text-xs font-bold uppercase tracking-widest opacity-50">Nessuna schedina inviata</div>
                         )}
                      </div>
                 </div>
-                {/* Footer with CTA Button */}
-                <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/10">
-                    <button 
-                        onClick={() => onNavigate('Schedine')}
-                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center gap-2"
-                    >
-                        Gioca Ora! <ArrowRight size={14} />
-                    </button>
+                <div className="p-6 bg-slate-50/50 dark:bg-brand-base/20 border-t border-gray-100 dark:border-white/5">
+                    <button onClick={() => onNavigate('Schedine')} className="w-full py-4 bg-brand-accent hover:bg-brand-accent/90 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-glow-blue flex items-center justify-center gap-3 transition-all active:scale-95 grain">Gioca ora <ArrowRight size={16} /></button>
                 </div>
             </div>
-        </div>
 
+            {/* Curiosità Schedine Box */}
+            {curiosities.length > 0 && (
+                <div className="bg-white dark:bg-brand-card rounded-[1.8rem] p-8 shadow-soft border border-gray-100 dark:border-white/5 border-l-4 border-amber-500 animate-fadeIn">
+                    <header className="flex items-center gap-3 mb-6 text-slate-700 dark:text-slate-100">
+                        <Lightbulb size={20} className="text-amber-500" />
+                        <h3 className="font-bold text-xs uppercase tracking-widest text-slate-900 dark:text-slate-100">Curiosità Schedine</h3>
+                    </header>
+                    <div className="space-y-4">
+                        {curiosities.map((tip, idx) => (
+                            <div key={idx} className="flex gap-3 items-start">
+                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></div>
+                                <p className="text-[11px] font-black text-slate-500 dark:text-slate-300 uppercase leading-relaxed tracking-wide">
+                                    {tip}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
       </div>
     </div>
   );

@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Match } from '../types';
 import { getH2HDescription, getHeadToHeadHistory } from '../services/leagueService';
-import { Calendar, ChevronLeft, ChevronRight, History, Hash } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Snowflake } from 'lucide-react';
 
 interface CalendarViewProps {
   matches: Match[];
+  frozenMatchdays: number[];
   onTeamClick?: (teamName: string) => void;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({ matches, onTeamClick }) => {
+export const CalendarView: React.FC<CalendarViewProps> = ({ matches, frozenMatchdays = [], onTeamClick }) => {
   const [selectedMatchday, setSelectedMatchday] = useState<number>(1);
   
   useEffect(() => {
     const playedMatchdays = matches.filter(m => m.isPlayed).map(m => m.matchday);
-    const maxPlayed = playedMatchdays.length > 0 ? Math.max(...playedMatchdays) : 0;
-    const next = maxPlayed < 38 ? maxPlayed + 1 : 38;
+    const maxMilestone = Math.max(0, ...playedMatchdays, ...frozenMatchdays);
+    const next = maxMilestone < 38 ? maxMilestone + 1 : 38;
     setSelectedMatchday(next);
-  }, [matches]);
+  }, [matches, frozenMatchdays]);
 
   const currentMatches = matches.filter(m => m.matchday === selectedMatchday);
+  const isFrozen = frozenMatchdays.includes(selectedMatchday);
 
   const handlePrev = () => {
     if (selectedMatchday > 1) setSelectedMatchday(selectedMatchday - 1);
@@ -36,132 +38,80 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ matches, onTeamClick
   }
 
   return (
-    <div className="space-y-6 w-full max-w-full mx-auto animate-fadeIn">
-      {/* Header & Controls */}
-      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 flex justify-between items-center gap-4 transition-colors">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-            <Calendar className="w-5 h-5 text-blue-500" />
+    <div className="space-y-5 w-full max-w-full mx-auto animate-fadeIn px-1 md:px-0">
+      <div className="bg-white dark:bg-brand-card rounded-2xl p-2.5 md:p-5 shadow-soft border border-gray-200 dark:border-white/5 flex flex-wrap md:flex-nowrap justify-between items-center gap-3 transition-colors">
+        <div className="flex items-center gap-3 md:gap-5">
+          <div className="p-2 md:p-3.5 bg-brand-accent/10 rounded-xl relative flex-shrink-0">
+            <Calendar className="w-4 h-4 md:w-6 md:h-6 text-brand-accent" />
+            {isFrozen && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75"></span><Snowflake size={10} className="relative inline-flex text-brand-accent" /></span>}
           </div>
           <div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">Matchday {selectedMatchday}</h2>
-            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wide">Season 24/25</p>
+            <h2 className="text-sm md:text-xl font-black text-slate-900 dark:text-white leading-tight flex items-center gap-2">
+                Giornata {selectedMatchday}
+                {isFrozen && <span className="text-[7px] bg-brand-accent/20 text-brand-accent px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest border border-brand-accent/30 hidden sm:inline-block">Frozen</span>}
+            </h2>
+            <p className="text-[8px] md:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">Stagione 25/26</p>
           </div>
         </div>
 
-        <div className="flex items-center bg-gray-50 dark:bg-gray-800/50 rounded-xl p-1">
-          <button 
-            onClick={handlePrev}
-            disabled={selectedMatchday === 1}
-            className="p-2 hover:bg-white dark:hover:bg-gray-700 rounded-lg disabled:opacity-30 text-gray-500 dark:text-gray-300 transition-all"
-          >
-            <ChevronLeft size={18} />
+        <div className="flex items-center bg-slate-100 dark:bg-brand-base rounded-xl p-0.5 md:p-1 border border-slate-200 dark:border-white/5">
+          <button onClick={handlePrev} disabled={selectedMatchday === 1} className="p-1 md:p-1.5 hover:bg-white dark:hover:bg-brand-card rounded-lg disabled:opacity-20 text-slate-800 dark:text-slate-400 transition-all">
+            <ChevronLeft size={14} md:size={20} />
           </button>
-          
-          <button 
-            onClick={handleNext}
-            disabled={selectedMatchday === 38}
-            className="p-2 hover:bg-white dark:hover:bg-gray-700 rounded-lg disabled:opacity-30 text-gray-500 dark:text-gray-300 transition-all"
-          >
-            <ChevronRight size={18} />
+          <div className="px-2 md:px-4 text-[10px] md:text-xs font-black tabular-nums text-slate-900 dark:text-slate-300">
+            {selectedMatchday}<span className="text-slate-400 font-medium px-0.5">/</span>38
+          </div>
+          <button onClick={handleNext} disabled={selectedMatchday === 38} className="p-1 md:p-1.5 hover:bg-white dark:hover:bg-brand-card rounded-lg disabled:opacity-20 text-slate-800 dark:text-slate-400 transition-all">
+            <ChevronRight size={14} md:size={20} />
           </button>
         </div>
       </div>
 
-      {/* Matches Grid - Horizontal Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
         {currentMatches.map((match) => {
             const h2hDesc = getH2HDescription(matches, match.homeTeam, match.awayTeam);
             const headToHead = getHeadToHeadHistory(matches, match.homeTeam, match.awayTeam);
-
-            // Determine winner for highlighting
             const homeWinner = match.isPlayed && (match.homeScore || 0) > (match.awayScore || 0);
             const awayWinner = match.isPlayed && (match.awayScore || 0) > (match.homeScore || 0);
 
             return (
-              <div 
-                key={match.id} 
-                className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-stretch overflow-hidden hover:shadow-md transition-shadow h-32"
-              >
-                {/* Left Side: Teams & Score */}
-                <div className="flex-1 p-3 flex flex-col min-w-0">
-                    <div className="flex-1 flex flex-col justify-center gap-3">
-                        {/* Home Team Row */}
-                        <div 
-                            className={`flex items-center justify-between group ${onTeamClick ? 'cursor-pointer' : ''}`}
-                            onClick={(e) => handleTeamClick(match.homeTeam, e)}
-                        >
-                            <div className="flex items-center gap-2 min-w-0">
-                                <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold border relative ${
-                                    homeWinner 
-                                    ? 'bg-white dark:bg-gray-800 text-green-500 border-green-500 shadow-sm' 
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-gray-700'
-                                }`}>
-                                    {match.homeTeam.charAt(0)}
-                                </div>
-                                <span className={`text-xs font-bold truncate ${homeWinner ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
-                                    {match.homeTeam}
-                                </span>
+              <div key={match.id} className="bg-white dark:bg-brand-card rounded-[1.5rem] md:rounded-[1.8rem] border border-gray-200 dark:border-white/5 shadow-soft flex flex-col overflow-hidden hover:border-brand-accent/30 transition-all duration-300">
+                <div className="p-4 md:p-6 flex flex-col min-w-0 flex-1">
+                    <div className="flex-1 flex flex-col justify-center gap-3 md:gap-4">
+                        <div className={`flex items-center justify-between group ${onTeamClick ? 'cursor-pointer' : ''}`} onClick={(e) => handleTeamClick(match.homeTeam, e)}>
+                            <div className="flex items-center gap-2.5 md:gap-3.5 min-w-0">
+                                <div className={`flex-shrink-0 w-7 h-7 md:w-9 md:h-9 rounded-lg flex items-center justify-center font-bold border shadow-sm transition-all ${homeWinner ? 'bg-brand-accent text-white border-brand-accent' : 'bg-slate-50 dark:bg-brand-base text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/5'}`}>{match.homeTeam.charAt(0)}</div>
+                                <span className={`text-xs md:text-sm font-black truncate tracking-tight ${homeWinner ? 'text-brand-accent' : 'text-slate-900 dark:text-slate-100'} group-hover:text-brand-accent transition-colors`}>{match.homeTeam}</span>
                             </div>
-                            <span className={`font-mono font-bold text-xs ${homeWinner ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600'}`}>
-                                {match.isPlayed ? match.homeScore : '-'}
-                            </span>
+                            <span className="font-mono font-black text-lg md:text-xl tabular-nums text-slate-900 dark:text-slate-100 pl-3">{match.isPlayed ? match.homeScore : '-'}</span>
                         </div>
-
-                        {/* Away Team Row */}
-                        <div 
-                            className={`flex items-center justify-between group ${onTeamClick ? 'cursor-pointer' : ''}`}
-                            onClick={(e) => handleTeamClick(match.awayTeam, e)}
-                        >
-                            <div className="flex items-center gap-2 min-w-0">
-                                <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold border relative ${
-                                    awayWinner 
-                                    ? 'bg-white dark:bg-gray-800 text-green-500 border-green-500 shadow-sm' 
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-gray-700'
-                                }`}>
-                                    {match.awayTeam.charAt(0)}
-                                </div>
-                                <span className={`text-xs font-bold truncate ${awayWinner ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
-                                    {match.awayTeam}
-                                </span>
+                        <div className={`flex items-center justify-between group ${onTeamClick ? 'cursor-pointer' : ''}`} onClick={(e) => handleTeamClick(match.awayTeam, e)}>
+                            <div className="flex items-center gap-2.5 md:gap-3.5 min-w-0">
+                                <div className={`flex-shrink-0 w-7 h-7 md:w-9 md:h-9 rounded-lg flex items-center justify-center font-bold border shadow-sm transition-all ${awayWinner ? 'bg-brand-accent text-white border-brand-accent' : 'bg-slate-50 dark:bg-brand-base text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/5'}`}>{match.awayTeam.charAt(0)}</div>
+                                <span className={`text-xs md:text-sm font-black truncate tracking-tight ${awayWinner ? 'text-brand-accent' : 'text-slate-900 dark:text-slate-100'} group-hover:text-brand-accent transition-colors`}>{match.awayTeam}</span>
                             </div>
-                            <span className={`font-mono font-bold text-xs ${awayWinner ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600'}`}>
-                                {match.isPlayed ? match.awayScore : '-'}
-                            </span>
+                            <span className="font-mono font-black text-lg md:text-xl tabular-nums text-slate-900 dark:text-slate-100 pl-3">{match.isPlayed ? match.awayScore : '-'}</span>
                         </div>
                     </div>
-
-                    <div className="mt-2 pt-2 border-t border-gray-50 dark:border-gray-800/50 text-[9px] text-gray-400 leading-tight">
+                </div>
+                
+                <div className="px-4 py-3 bg-slate-50 dark:bg-brand-base/30 min-h-[48px] md:min-h-[64px] flex items-center justify-center border-t border-slate-100 dark:border-white/5">
+                    <div className="text-[8px] md:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight leading-tight text-center px-1">
                         {h2hDesc}
                     </div>
                 </div>
 
-                {/* Vertical Divider */}
-                <div className="w-px bg-gray-100 dark:bg-gray-800 my-2"></div>
-
-                {/* Right Side: History / Details - Scrollable */}
-                <div className="w-24 bg-gray-50/50 dark:bg-gray-900/30 flex flex-col p-2 text-center overflow-y-auto custom-scrollbar">
-                    {headToHead.length > 0 ? (
-                        <div className="flex flex-col gap-1 w-full">
-                            <div className="flex items-center justify-center gap-1 text-[8px] font-bold text-blue-500 uppercase tracking-widest mb-1 sticky top-0 bg-gray-50 dark:bg-[#1c1c1e] py-0.5 rounded backdrop-blur-sm z-10">
-                                <History size={8} /> History
-                            </div>
-                            {headToHead.slice().reverse().map((h) => (
-                                <div key={h.id} className="flex justify-between items-center px-1.5 py-0.5 rounded hover:bg-white dark:hover:bg-gray-800 transition-colors shrink-0">
-                                    <span className="text-[8px] text-gray-400">MD{h.matchday}</span>
-                                    <span className="text-[9px] font-mono font-medium text-gray-700 dark:text-gray-300">
-                                        {h.homeScore}-{h.awayScore}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-full gap-1 opacity-50">
-                            <Hash size={14} className="text-gray-300" />
-                            <span className="text-[9px] text-gray-400 italic">No history</span>
-                        </div>
-                    )}
-                </div>
+                {headToHead.length > 0 && (
+                  <div className="p-2 md:p-3 bg-slate-100/30 dark:bg-brand-base/10 border-t border-slate-100 dark:border-white/5">
+                      <div className="flex flex-wrap justify-center gap-1.5">
+                          {headToHead.slice(-2).reverse().map((h) => (
+                              <div key={h.id} className="px-1.5 py-0.5 md:px-2 md:py-1 rounded bg-white dark:bg-brand-card border border-slate-200 dark:border-white/5 text-[7px] md:text-[9px] font-mono font-black text-slate-400 dark:text-slate-500">
+                                  {h.homeTeam.substring(0,3)} {h.homeScore}-{h.awayScore} {h.awayTeam.substring(0,3)}
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+                )}
               </div>
             );
         })}

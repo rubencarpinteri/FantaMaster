@@ -110,7 +110,6 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
               
               {statColumns.map((col) => {
                   const labels: Record<string, string> = { played: 'G', won: 'V', drawn: 'N', lost: 'P', gf: 'GF', ga: 'GS', points: 'PT', totalFP: 'FP' };
-                  // Spread stats evenly. totalFP gets slightly more room for decimals if needed, others are identical.
                   const widthClass = col === 'totalFP' ? 'w-[14%]' : 'w-[10%]';
                   
                   return (
@@ -147,10 +146,10 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
                 )}
                 
                 <td className="px-1 py-6 text-center">
-                    <span className="text-brand-accent font-black text-xl tabular-nums leading-none">{team.points}</span>
+                    <span className="text-slate-900 dark:text-white font-black text-xl tabular-nums leading-none">{team.points}</span>
                 </td>
                 <td className="px-1 py-6 text-center">
-                    <span className="text-brand-accent/50 font-black text-[11px] tabular-nums leading-none font-mono">{(team.totalFP || 0).toFixed(1)}</span>
+                    <span className="text-slate-400 dark:text-slate-500 font-black text-[11px] tabular-nums leading-none font-mono">{(team.totalFP || 0).toFixed(1)}</span>
                 </td>
               </tr>
             ))}
@@ -179,8 +178,8 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
                         </div>
                         {mobileStatsCols.map(col => {
                             let textClass = "text-slate-500 font-bold";
-                            if (col.key === 'points') textClass = "text-brand-accent font-black text-[14px]";
-                            else if (col.key === 'totalFP') textClass = "text-brand-accent/40 font-black text-[10px] font-mono";
+                            if (col.key === 'points') textClass = "text-slate-900 dark:text-white font-black text-[14px]";
+                            else if (col.key === 'totalFP') textClass = "text-slate-400 dark:text-slate-500 font-black text-[10px] font-mono";
                             else if (col.key === 'won') textClass = "text-slate-900 dark:text-white font-black";
                             
                             const val = (team as any)[col.key];

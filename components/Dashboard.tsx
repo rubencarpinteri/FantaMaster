@@ -66,13 +66,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                                 <tr key={team.team} className="group/row hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
                                     <td className="px-6 py-4 w-10 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
                                     <td className="px-4 py-4 font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
-                                    <td className="px-4 py-4 text-center">
-                                        <div className="flex gap-0.5 justify-center">
-                                            {team.form.slice(-5).map((r, i) => (
-                                                <span key={i} className={`block w-1 h-3 rounded-full ${r.result === 'W' ? 'bg-brand-success' : r.result === 'D' ? 'bg-slate-300' : 'bg-brand-danger'}`}></span>
-                                            ))}
-                                        </div>
-                                    </td>
                                     <td className="px-6 py-4 text-right">
                                         <span className="font-bold text-slate-900 dark:text-white text-sm tabular-nums">{team.points}</span>
                                         <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase ml-1">pt</span>

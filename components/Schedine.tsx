@@ -113,7 +113,7 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                  <form onSubmit={handleLogin} className="flex flex-col gap-4">
                     <input name="username" type="text" autoFocus placeholder="NOME SQUADRA" className="bg-slate-50 dark:bg-brand-base border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3.5 text-center font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-accent uppercase placeholder:text-slate-300/10 placeholder:font-black" />
                     {loginError && <p className="text-brand-danger text-[10px] font-bold uppercase tracking-wide">{loginError}</p>}
-                    <button type="submit" className="bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-glow-blue grain transition-all active:scale-95">Entra nel sistema</button>
+                    <button type="submit" className="bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-glow-blue grain transition-all active:scale-95">Entra</button>
                  </form>
              </div>
           </div>

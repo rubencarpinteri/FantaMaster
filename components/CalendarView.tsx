@@ -103,8 +103,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ matches, frozenMatch
                   <div className="p-2 md:p-3 bg-slate-100/30 dark:bg-brand-base/10 border-t border-slate-100 dark:border-white/5">
                       <div className="flex flex-wrap justify-center gap-1.5">
                           {headToHead.slice(-2).reverse().map((h) => (
-                              <div key={h.id} className="px-1.5 py-0.5 md:px-2 md:py-1 rounded bg-white dark:bg-brand-card border border-slate-200 dark:border-white/5 text-[7px] md:text-[9px] font-mono font-black text-slate-400 dark:text-slate-500">
-                                  {h.homeTeam.substring(0,6)} {h.homeScore}-{h.awayScore} {h.awayTeam.substring(0,6)}
+                              <div key={h.id} className="px-1.5 py-1 md:px-3 md:py-1.5 rounded-lg bg-white dark:bg-brand-card border border-slate-200 dark:border-white/5 text-[7px] md:text-[9px] font-mono font-black text-slate-500 dark:text-slate-400 shadow-sm flex items-center gap-1.5">
+                                  <span className="uppercase">{h.homeTeam}</span>
+                                  <span className="bg-slate-100 dark:bg-brand-base px-1.5 py-0.5 rounded text-brand-accent">{h.homeScore}-{h.awayScore}</span>
+                                  <span className="uppercase">{h.awayTeam}</span>
                               </div>
                           ))}
                       </div>

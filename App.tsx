@@ -173,7 +173,7 @@ function App() {
                     
                     <div className="flex items-center gap-2 bg-white/50 dark:bg-brand-card/50 p-1 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 backdrop-blur-sm">
                         <nav className="flex items-center gap-1">
-                            <NavButton active={activeTab === 'Schedine'} onClick={() => setActiveTab('Schedine'} icon={<Ticket size={14} />} label="Schedine" />
+                            <NavButton active={activeTab === 'Schedine'} onClick={() => setActiveTab('Schedine')} icon={<Ticket size={14} />} label="Schedine" />
                             <NavButton active={activeTab === 'Dashboard'} onClick={() => setActiveTab('Dashboard')} icon={<Home size={14} />} label="Home" />
                             <NavButton active={activeTab === Competition.CAMPIONATO} onClick={() => setActiveTab(Competition.CAMPIONATO)} icon={<Trophy size={14} />} label="Campionato" />
                             <NavButton active={activeTab === Competition.BATTLE_ROYALE} onClick={() => setActiveTab(Competition.BATTLE_ROYALE)} icon={<Swords size={14} />} label="Royale" />

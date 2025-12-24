@@ -45,6 +45,35 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
     return results;
   }, [recentSubmissions, nextMatches]);
 
+  // Helper to get the form dots including frozen matchdays, most recent first (on the left)
+  const getTeamFormDots = (teamName: string) => {
+    const dots: React.ReactNode[] = [];
+    const startMd = Math.max(1, maxMilestone - 4);
+    
+    // Loop backwards from latest to earliest to put most recent on the left
+    for (let md = maxMilestone; md >= startMd; md--) {
+      const match = matches.find(m => m.matchday === md && (m.homeTeam === teamName || m.awayTeam === teamName));
+      if (!match) continue;
+
+      if (match.isPlayed) {
+        const isHome = match.homeTeam === teamName;
+        const gf = isHome ? match.homeScore! : match.awayScore!;
+        const ga = isHome ? match.awayScore! : match.homeScore!;
+        
+        if (gf > ga) {
+          dots.push(<div key={md} className="w-1.5 h-1.5 rounded-full bg-brand-success" title={`Giornata ${md}: Vittoria`} />);
+        } else if (gf < ga) {
+          dots.push(<div key={md} className="w-1.5 h-1.5 rounded-full bg-brand-danger" title={`Giornata ${md}: Sconfitta`} />);
+        } else {
+          dots.push(<div key={md} className="w-1.5 h-1.5 rounded-full bg-slate-400" title={`Giornata ${md}: Pareggio`} />);
+        }
+      } else if (frozenMatchdays.includes(md)) {
+        dots.push(<div key={md} className="w-1.5 h-1.5 rounded-full bg-brand-accent shadow-[0_0_2px_rgba(76,125,255,0.6)]" title={`Giornata ${md}: Congelata`} />);
+      }
+    }
+    return dots;
+  };
+
   return (
     <div className="max-w-[1400px] mx-auto space-y-10 animate-fadeIn">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -59,16 +88,28 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                     </div>
                     <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase">Turno {maxMilestone}</span>
                 </div>
-                <div className="p-0 overflow-x-auto custom-scrollbar">
-                    <table className="w-full text-sm min-w-[300px]">
+                <div className="p-0 overflow-hidden">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="bg-slate-50/30 dark:bg-transparent border-b border-gray-50 dark:border-white/5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                <th className="px-3 py-3 w-8 text-center">#</th>
+                                <th className="px-2 py-3 text-left">Squadra</th>
+                                <th className="px-2 py-3 text-center">Form</th>
+                                <th className="px-3 py-3 text-right">PT</th>
+                            </tr>
+                        </thead>
                         <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                             {campionatoStats.slice(0, 10).map((team) => (
                                 <tr key={team.team} className="group/row hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
-                                    <td className="px-6 py-4 w-10 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
-                                    <td className="px-4 py-4 font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
-                                    <td className="px-6 py-4 text-right">
-                                        <span className="font-bold text-slate-900 dark:text-white text-sm tabular-nums">{team.points}</span>
-                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase ml-1">pt</span>
+                                    <td className="px-3 py-4 text-center font-bold text-slate-400 dark:text-slate-500 text-[10px]">#{team.rank}</td>
+                                    <td className="px-2 py-4 font-bold uppercase tracking-tight text-[11px] md:text-xs text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
+                                    <td className="px-2 py-4">
+                                        <div className="flex items-center justify-center gap-1">
+                                            {getTeamFormDots(team.team)}
+                                        </div>
+                                    </td>
+                                    <td className="px-3 py-4 text-right">
+                                        <span className="font-bold text-slate-900 dark:text-white text-xs tabular-nums">{team.points}</span>
                                     </td>
                                 </tr>
                             ))}
@@ -86,8 +127,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                     </div>
                     <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase">Turno {maxMilestone}</span>
                 </div>
-                <div className="p-0 overflow-x-auto custom-scrollbar">
-                    <table className="w-full text-sm min-w-[300px]">
+                <div className="p-0 overflow-hidden">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="bg-slate-50/30 dark:bg-transparent border-b border-gray-50 dark:border-white/5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                <th className="px-6 py-3 w-10 text-center">#</th>
+                                <th className="px-4 py-3 text-left">Squadra</th>
+                                <th className="px-6 py-3 text-right">PT</th>
+                            </tr>
+                        </thead>
                         <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                             {battleRoyaleStats.slice(0, 10).map((team) => (
                                 <tr key={team.team} className="group/row hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
@@ -95,7 +143,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                                     <td className="px-4 py-4 font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
                                     <td className="px-6 py-4 text-right">
                                         <span className="font-bold text-slate-900 dark:text-white text-sm tabular-nums">{team.points}</span>
-                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase ml-1">pt</span>
                                     </td>
                                 </tr>
                             ))}

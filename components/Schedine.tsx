@@ -227,18 +227,31 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                             <p className="text-[9px] md:text-xs text-slate-500 font-black uppercase tracking-[0.2em]">Analisi Precisione Manageriale 2025/26</p>
                         </div>
                     </header>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50 dark:bg-brand-base/50 text-slate-400 uppercase text-[9px] font-black tracking-widest border-b border-gray-100">
-                                <tr><th className="px-6 py-6">#</th><th className="px-6 py-6">Manager</th><th className="px-6 py-6 text-center">Punti</th><th className="px-6 py-6 text-center">Trend</th></tr>
+                    <div className="w-full">
+                        <table className="w-full text-left table-fixed">
+                            <thead className="bg-slate-50 dark:bg-brand-base/50 text-slate-400 uppercase text-[9px] font-black tracking-widest border-b border-gray-100 dark:border-white/5">
+                                <tr>
+                                    <th className="px-4 md:px-6 py-6 w-[12%]">#</th>
+                                    <th className="px-2 md:px-6 py-6 w-[48%]">Manager</th>
+                                    <th className="px-2 md:px-6 py-6 w-[20%] text-center">Punti</th>
+                                    <th className="px-2 md:px-6 py-6 w-[20%] text-center">Last</th>
+                                </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                                 {leaderboard.map((row, idx) => (
                                     <tr key={row.teamName} className={`${row.teamName === currentUser ? 'bg-brand-accent/[0.05]' : ''}`}>
-                                        <td className="px-6 py-6 font-black text-slate-400">{idx < 3 ? (idx === 0 ? "🥇" : idx === 1 ? "🥈" : "🥉") : `#${row.rank}`}</td>
-                                        <td className="px-6 py-6 font-black text-sm uppercase text-slate-900 dark:text-white">{row.teamName}</td>
-                                        <td className="px-6 py-6 text-center font-black text-brand-accent text-xl">{row.totalCorrect}</td>
-                                        <td className="px-6 py-6 text-center text-[10px] font-black text-slate-400">+{row.lastWeekCorrect}</td>
+                                        <td className="px-4 md:px-6 py-6 font-black text-slate-400 text-xs md:text-base">
+                                            {idx < 3 ? (idx === 0 ? "🥇" : idx === 1 ? "🥈" : "🥉") : `#${row.rank}`}
+                                        </td>
+                                        <td className="px-2 md:px-6 py-6 font-black text-[11px] md:text-sm uppercase text-slate-900 dark:text-white truncate">
+                                            {row.teamName}
+                                        </td>
+                                        <td className="px-2 md:px-6 py-6 text-center font-black text-brand-accent text-lg md:text-xl tabular-nums">
+                                            {row.totalCorrect}
+                                        </td>
+                                        <td className="px-2 md:px-6 py-6 text-center text-xs md:text-[10px] font-black text-brand-success tabular-nums">
+                                            +{row.lastWeekCorrect}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

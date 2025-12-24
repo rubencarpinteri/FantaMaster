@@ -134,7 +134,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
                 </td>
                 
                 <td className="px-1 py-6 text-center text-slate-500 font-bold tabular-nums text-sm">{team.played}</td>
-                <td className="px-1 py-6 text-center text-slate-900 dark:text-white font-black tabular-nums text-sm">{team.won}</td>
+                <td className="px-1 py-6 text-center text-slate-500 font-bold tabular-nums text-sm">{team.won}</td>
                 <td className="px-1 py-6 text-center text-slate-500 font-bold tabular-nums text-sm">{team.drawn}</td>
                 <td className="px-1 py-6 text-center text-slate-500 font-bold tabular-nums text-sm">{team.lost}</td>
                 
@@ -146,7 +146,7 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
                 )}
                 
                 <td className="px-1 py-6 text-center">
-                    <span className="text-slate-900 dark:text-white font-black text-xl tabular-nums leading-none">{team.points}</span>
+                    <span className="text-brand-accent font-black text-xl tabular-nums leading-none">{team.points}</span>
                 </td>
                 <td className="px-1 py-6 text-center">
                     <span className="text-slate-400 dark:text-slate-500 font-black text-[11px] tabular-nums leading-none font-mono">{(team.totalFP || 0).toFixed(1)}</span>
@@ -178,9 +178,8 @@ export const LeagueTable: React.FC<LeagueTableProps> = ({ stats, title, type, on
                         </div>
                         {mobileStatsCols.map(col => {
                             let textClass = "text-slate-500 font-bold";
-                            if (col.key === 'points') textClass = "text-slate-900 dark:text-white font-black text-[14px]";
+                            if (col.key === 'points') textClass = "text-brand-accent font-black text-[14px]";
                             else if (col.key === 'totalFP') textClass = "text-slate-400 dark:text-slate-500 font-black text-[10px] font-mono";
-                            else if (col.key === 'won') textClass = "text-slate-900 dark:text-white font-black";
                             
                             const val = (team as any)[col.key];
                             return <span key={col.key} className={`${textClass} text-[10px] text-center tabular-nums`}>{typeof val === 'number' && val % 1 !== 0 ? val.toFixed(1) : val}</span>;

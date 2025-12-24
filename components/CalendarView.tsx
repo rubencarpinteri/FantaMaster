@@ -80,14 +80,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ matches, frozenMatch
                     <div className="flex-1 flex flex-col justify-center gap-3 md:gap-4">
                         <div className={`flex items-center justify-between group ${onTeamClick ? 'cursor-pointer' : ''}`} onClick={(e) => handleTeamClick(match.homeTeam, e)}>
                             <div className="flex items-center gap-2.5 md:gap-3.5 min-w-0">
-                                <div className={`flex-shrink-0 w-7 h-7 md:w-9 md:h-9 rounded-lg flex items-center justify-center font-bold border shadow-sm transition-all ${homeWinner ? 'bg-brand-accent text-white border-brand-accent' : 'bg-slate-50 dark:bg-brand-base text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/5'}`}>{match.homeTeam.charAt(0)}</div>
                                 <span className={`text-xs md:text-sm font-black truncate tracking-tight ${homeWinner ? 'text-brand-accent' : 'text-slate-900 dark:text-slate-100'} group-hover:text-brand-accent transition-colors`}>{match.homeTeam}</span>
                             </div>
                             <span className="font-mono font-black text-lg md:text-xl tabular-nums text-slate-900 dark:text-slate-100 pl-3">{match.isPlayed ? match.homeScore : '-'}</span>
                         </div>
                         <div className={`flex items-center justify-between group ${onTeamClick ? 'cursor-pointer' : ''}`} onClick={(e) => handleTeamClick(match.awayTeam, e)}>
                             <div className="flex items-center gap-2.5 md:gap-3.5 min-w-0">
-                                <div className={`flex-shrink-0 w-7 h-7 md:w-9 md:h-9 rounded-lg flex items-center justify-center font-bold border shadow-sm transition-all ${awayWinner ? 'bg-brand-accent text-white border-brand-accent' : 'bg-slate-50 dark:bg-brand-base text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/5'}`}>{match.awayTeam.charAt(0)}</div>
                                 <span className={`text-xs md:text-sm font-black truncate tracking-tight ${awayWinner ? 'text-brand-accent' : 'text-slate-900 dark:text-slate-100'} group-hover:text-brand-accent transition-colors`}>{match.awayTeam}</span>
                             </div>
                             <span className="font-mono font-black text-lg md:text-xl tabular-nums text-slate-900 dark:text-slate-100 pl-3">{match.isPlayed ? match.awayScore : '-'}</span>
@@ -106,7 +104,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ matches, frozenMatch
                       <div className="flex flex-wrap justify-center gap-1.5">
                           {headToHead.slice(-2).reverse().map((h) => (
                               <div key={h.id} className="px-1.5 py-0.5 md:px-2 md:py-1 rounded bg-white dark:bg-brand-card border border-slate-200 dark:border-white/5 text-[7px] md:text-[9px] font-mono font-black text-slate-400 dark:text-slate-500">
-                                  {h.homeTeam.substring(0,3)} {h.homeScore}-{h.awayScore} {h.awayTeam.substring(0,3)}
+                                  {h.homeTeam.substring(0,6)} {h.homeScore}-{h.awayScore} {h.awayTeam.substring(0,6)}
                               </div>
                           ))}
                       </div>

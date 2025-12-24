@@ -64,9 +64,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                         <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                             {campionatoStats.slice(0, 10).map((team) => (
                                 <tr key={team.team} className="group/row hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
-                                    <td className="px-8 py-4 w-12 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
+                                    <td className="px-6 py-4 w-10 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
                                     <td className="px-4 py-4 font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
-                                    <td className="px-8 py-4 text-right">
+                                    <td className="px-4 py-4 text-center">
+                                        <div className="flex gap-0.5 justify-center">
+                                            {team.form.slice(-5).map((r, i) => (
+                                                <span key={i} className={`block w-1 h-3 rounded-full ${r.result === 'W' ? 'bg-brand-success' : r.result === 'D' ? 'bg-slate-300' : 'bg-brand-danger'}`}></span>
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
                                         <span className="font-bold text-slate-900 dark:text-white text-sm tabular-nums">{team.points}</span>
                                         <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase ml-1">pt</span>
                                     </td>
@@ -91,9 +98,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                         <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                             {battleRoyaleStats.slice(0, 10).map((team) => (
                                 <tr key={team.team} className="group/row hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
-                                    <td className="px-8 py-4 w-12 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
+                                    <td className="px-6 py-4 w-10 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
                                     <td className="px-4 py-4 font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
-                                    <td className="px-8 py-4 text-right">
+                                    <td className="px-6 py-4 text-right">
                                         <span className="font-bold text-slate-900 dark:text-white text-sm tabular-nums">{team.points}</span>
                                         <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase ml-1">pt</span>
                                     </td>
@@ -152,17 +159,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                                 <div className="grid grid-cols-5 gap-2">
                                     {sub.predictions.map((p, i) => {
                                         const match = matches.find(m => m.id === p.matchId);
-                                        const homeInit = match?.homeTeam.substring(0, 3).toUpperCase() || '???';
-                                        const awayInit = match?.awayTeam.substring(0, 3).toUpperCase() || '???';
+                                        // Increased character allowance for team names
+                                        const homeInit = match?.homeTeam.substring(0, 6).toUpperCase() || '???';
+                                        const awayInit = match?.awayTeam.substring(0, 6).toUpperCase() || '???';
                                         return (
                                             <div key={i} className="flex flex-col items-center gap-1.5">
                                                 <span className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-black border-2 shadow-sm grain ${p.prediction === '1' ? 'bg-brand-accent text-white border-brand-accent' : p.prediction === 'X' ? 'bg-slate-300 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-400/20' : 'bg-brand-danger text-white border-brand-danger'}`}>
                                                     {p.prediction}
                                                 </span>
-                                                <div className="bg-white/50 dark:bg-white/5 px-1 py-0.5 rounded border border-slate-200 dark:border-white/5">
-                                                    <div className="text-[7px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none text-center mb-0.5">{homeInit}</div>
+                                                <div className="bg-white/50 dark:bg-white/5 px-1 py-0.5 rounded border border-slate-200 dark:border-white/5 w-full">
+                                                    <div className="text-[6px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none text-center mb-0.5 truncate">{homeInit}</div>
                                                     <div className="h-px bg-slate-200 dark:bg-white/10 w-full mb-0.5"></div>
-                                                    <div className="text-[7px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none text-center">{awayInit}</div>
+                                                    <div className="text-[6px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none text-center truncate">{awayInit}</div>
                                                 </div>
                                             </div>
                                         );

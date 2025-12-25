@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Trophy, Swords, Settings, CalendarDays, Ticket, Sun, Moon, CloudOff, Cloud, Home } from 'lucide-react';
 import { parseCSV, calculateCampionato, calculateBattleRoyale, calculateSchedineLeaderboard } from './services/leagueService';
+// Fix: Corrected SchedinaAdjustment to SchedineAdjustment to match the exported type
 import { Match, Competition, SchedinaSubmission, SchedineAdjustment } from './types';
 import { 
     supabase, 
@@ -41,9 +43,11 @@ const SoccerBallIcon = ({ size = 20 }: { size?: number }) => (
 function App() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [schedineSubmissions, setSchedineSubmissions] = useState<SchedinaSubmission[]>([]);
+  // Fix: SchedineAdjustment is now correctly imported
   const [schedineAdjustments, setSchedineAdjustments] = useState<SchedineAdjustment>({});
   const [frozenMatchdays, setFrozenMatchdays] = useState<number[]>([]);
-  const [activeTab, setActiveTab] = useState<Competition | 'Admin' | 'Calendar' | 'Schedine' | 'Dashboard'>('Dashboard');
+  // Changed default tab to 'Schedine'
+  const [activeTab, setActiveTab] = useState<Competition | 'Admin' | 'Calendar' | 'Schedine' | 'Dashboard'>('Schedine');
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
@@ -150,6 +154,7 @@ function App() {
       case Competition.BATTLE_ROYALE: return <LeagueTable stats={battleRoyaleStats} title="Battle Royale" type={Competition.BATTLE_ROYALE} onTeamClick={setSelectedTeam} />;
       case 'Calendar': return <CalendarView matches={matches} frozenMatchdays={frozenMatchdays} onTeamClick={setSelectedTeam} />;
       case 'Schedine': return <Schedine matches={matches} legacyData={LEGACY_SCHEDINE_DATA} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onSubmit={handleSchedinaSubmit} />;
+      // Fix: Changed adjustments={adjustments} to adjustments={schedineAdjustments}
       case 'Admin': return <AdminPanel matches={matches} schedineStats={schedineStats} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onUpdateMatch={handleUpdateMatch} onUpdateSchedineAdjustment={handleUpdateAdjustment} onDeleteSubmission={handleDeleteSubmission} onToggleFreeze={handleToggleFreeze} onReset={handleReset} />;
       default: return null;
     }

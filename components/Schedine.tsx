@@ -106,14 +106,14 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
   if (!currentUser) {
       return (
           <div className="fixed inset-0 top-16 flex items-center justify-center p-4 bg-[#F8F9FB] dark:bg-brand-base overflow-hidden z-[40]">
-             <div className="bg-white dark:bg-brand-card p-6 md:p-10 rounded-[2.5rem] shadow-soft border border-gray-100 dark:border-white/5 w-full max-w-sm text-center animate-fadeIn">
-                 <div className="w-14 h-14 bg-brand-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glow-blue grain"><User className="w-7 h-7 text-brand-accent" /></div>
-                 <h2 className="text-xl font-black mb-1 text-slate-900 dark:text-white tracking-tight uppercase">Accesso Schedine</h2>
-                 <p className="text-slate-400/20 text-[9px] font-black uppercase tracking-[0.2em] mb-8">Identifica la tua squadra</p>
-                 <form onSubmit={handleLogin} className="flex flex-col gap-4">
-                    <input name="username" type="text" autoFocus placeholder="NOME SQUADRA" className="bg-slate-50 dark:bg-brand-base border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3.5 text-center font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-accent uppercase placeholder:text-slate-300/10 placeholder:font-black" />
-                    {loginError && <p className="text-brand-danger text-[10px] font-bold uppercase tracking-wide">{loginError}</p>}
-                    <button type="submit" className="bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-glow-blue grain transition-all active:scale-95">Entra</button>
+             <div className="bg-white dark:bg-brand-card p-8 md:p-12 rounded-[2.5rem] shadow-soft border border-gray-100 dark:border-white/5 w-full max-w-sm text-center animate-fadeIn">
+                 <div className="w-16 h-16 bg-brand-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-glow-blue grain"><User className="w-8 h-8 text-brand-accent" /></div>
+                 <h2 className="text-2xl font-black mb-1 text-slate-900 dark:text-white tracking-tight uppercase">Accesso Schedine</h2>
+                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-10">Identifica la tua squadra</p>
+                 <form onSubmit={handleLogin} className="flex flex-col gap-5">
+                    <input name="username" type="text" autoFocus placeholder="NOME SQUADRA" className="bg-slate-50 dark:bg-brand-base border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 text-center font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-accent uppercase placeholder:text-slate-300 placeholder:font-black text-base" />
+                    {loginError && <p className="text-brand-danger text-[11px] font-bold uppercase tracking-wide">{loginError}</p>}
+                    <button type="submit" className="bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs shadow-glow-blue grain transition-all active:scale-95">Entra</button>
                  </form>
              </div>
           </div>
@@ -121,93 +121,93 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
   }
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto space-y-6 md:space-y-8 animate-fadeIn">
+    <div className="w-full max-w-[1400px] mx-auto space-y-6 md:space-y-10 animate-fadeIn">
         <div className="flex justify-center">
-            <div className="bg-white dark:bg-brand-card p-1 rounded-xl shadow-soft border border-gray-100 dark:border-white/5 inline-flex gap-1">
-                <button onClick={() => setActiveTab('play')} className={`px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'play' ? 'active-nav-pill text-white shadow-glow-blue grain' : 'text-slate-500 hover:text-brand-accent'}`}>Gioca</button>
-                <button onClick={() => setActiveTab('leaderboard')} className={`px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'leaderboard' ? 'active-nav-pill text-white shadow-glow-blue grain' : 'text-slate-500 hover:text-brand-accent'}`}>Classifica</button>
+            <div className="bg-white dark:bg-brand-card p-1.5 rounded-2xl shadow-soft border border-gray-100 dark:border-white/5 inline-flex gap-2">
+                <button onClick={() => setActiveTab('play')} className={`px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${activeTab === 'play' ? 'active-nav-pill text-white shadow-glow-blue grain' : 'text-slate-500 hover:text-brand-accent'}`}>Gioca</button>
+                <button onClick={() => setActiveTab('leaderboard')} className={`px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${activeTab === 'leaderboard' ? 'active-nav-pill text-white shadow-glow-blue grain' : 'text-slate-500 hover:text-brand-accent'}`}>Classifica</button>
             </div>
         </div>
 
         {activeTab === 'play' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-                <div className="lg:col-span-8 space-y-4 md:space-y-6">
-                    <div className="bg-white dark:bg-brand-card rounded-[1.8rem] md:rounded-[2rem] p-4 md:p-10 shadow-soft border border-gray-100 dark:border-white/5">
-                        <header className="flex justify-between items-center mb-4 md:mb-6 flex-wrap gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
+                <div className="lg:col-span-8 space-y-5 md:space-y-8">
+                    <div className="bg-white dark:bg-brand-card rounded-[2rem] p-6 md:p-12 shadow-soft border border-gray-100 dark:border-white/5">
+                        <header className="flex justify-between items-center mb-6 md:mb-10 flex-wrap gap-6">
                             <div>
-                                <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Giornata {nextMatchday}</h2>
-                                <p className="text-slate-500 text-[9px] md:text-[10px] font-semibold uppercase tracking-widest">Schedina del Turno</p>
+                                <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Giornata {nextMatchday}</h2>
+                                <p className="text-slate-500 text-[10px] md:text-xs font-semibold uppercase tracking-widest">Schedina del Turno</p>
                             </div>
-                            <div className="flex items-center gap-2 md:gap-3 bg-slate-50 dark:bg-brand-base px-3 py-1.5 md:px-4 md:py-2 rounded-xl border border-slate-100 dark:border-white/5">
-                                <span className="font-bold text-brand-accent text-[9px] md:text-[10px] uppercase">{currentUser}</span>
-                                <button onClick={handleLogout} className="p-1 text-slate-400 hover:text-brand-danger transition-all"><LogOut size={14} /></button>
+                            <div className="flex items-center gap-3 md:gap-5 bg-slate-50 dark:bg-brand-base px-4 py-2.5 md:px-6 md:py-3 rounded-2xl border border-slate-100 dark:border-white/5">
+                                <span className="font-black text-brand-accent text-xs md:text-sm uppercase tracking-wide">{currentUser}</span>
+                                <button onClick={handleLogout} className="p-1.5 text-slate-400 hover:text-brand-danger transition-all"><LogOut size={16} /></button>
                             </div>
                         </header>
 
-                        <div className="space-y-2.5 md:space-y-3">
+                        <div className="space-y-3.5 md:space-y-4">
                             {nextMatches.map(match => {
                                  const h2hDesc = getH2HDescription(matches, match.homeTeam, match.awayTeam);
                                  return (
-                                     <div key={match.id} className="bg-slate-50/50 dark:bg-brand-base/40 rounded-[1.2rem] md:rounded-[1.5rem] border border-slate-200 dark:border-white/5 overflow-hidden">
-                                         <div className="flex items-center justify-between p-3 md:p-5 gap-1 md:gap-3 w-full">
+                                     <div key={match.id} className="bg-slate-50/50 dark:bg-brand-base/40 rounded-[1.5rem] md:rounded-[2rem] border border-slate-200 dark:border-white/5 overflow-hidden">
+                                         <div className="flex items-center justify-between p-4 md:p-7 gap-2 md:gap-4 w-full">
                                              <div className="flex-1 flex items-center justify-end min-w-0 pr-1 md:pr-4">
-                                                 <span className="font-black text-[10px] md:text-sm uppercase text-slate-900 dark:text-slate-100 tracking-tight text-right truncate">{match.homeTeam}</span>
+                                                 <span className="font-black text-[12px] md:text-base uppercase text-slate-900 dark:text-slate-100 tracking-tight text-right truncate">{match.homeTeam}</span>
                                              </div>
 
-                                             <div className="flex gap-1 justify-center flex-shrink-0 px-2 md:px-6">
+                                             <div className="flex gap-1.5 justify-center flex-shrink-0 px-2 md:px-8">
                                                  {['1', 'X', '2'].map(opt => (
                                                      <button key={opt} onClick={() => handlePrediction(match.id, opt as any)}
-                                                         className={`h-9 w-10 md:h-12 md:w-14 rounded-lg font-black text-[10px] md:text-xs transition-all border-2 ${currentPredictions[match.id] === opt ? 'bg-brand-accent text-white border-brand-accent shadow-glow-blue grain' : 'bg-white dark:bg-brand-card text-slate-400 border-slate-200 dark:border-white/10'}`}
+                                                         className={`h-11 w-12 md:h-14 md:w-16 rounded-xl font-black text-xs md:text-sm transition-all border-2 ${currentPredictions[match.id] === opt ? 'bg-brand-accent text-white border-brand-accent shadow-glow-blue grain' : 'bg-white dark:bg-brand-card text-slate-400 border-slate-200 dark:border-white/10'}`}
                                                      > {opt} </button>
                                                  ))}
                                              </div>
 
                                              <div className="flex-1 flex items-center justify-start min-w-0 pl-1 md:pl-4">
-                                                 <span className="font-black text-[10px] md:text-sm uppercase text-slate-900 dark:text-slate-100 tracking-tight text-left truncate">{match.awayTeam}</span>
+                                                 <span className="font-black text-[12px] md:text-base uppercase text-slate-900 dark:text-slate-100 tracking-tight text-left truncate">{match.awayTeam}</span>
                                              </div>
                                          </div>
-                                         <div className="bg-slate-100/50 dark:bg-brand-base/20 px-3 py-1.5 md:px-4 md:py-2 border-t border-slate-200/50 dark:border-white/5 text-center">
-                                             <p className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 leading-tight">{h2hDesc}</p>
+                                         <div className="bg-slate-100/50 dark:bg-brand-base/20 px-3 py-2 md:px-6 md:py-3 border-t border-slate-200/50 dark:border-white/5 text-center">
+                                             <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 leading-tight">{h2hDesc}</p>
                                          </div>
                                      </div>
                                  );
                             })}
                         </div>
 
-                        <div className="mt-6 md:mt-8 flex justify-center">
-                            <button onClick={handleSubmit} className="w-full md:w-auto px-10 py-3.5 bg-brand-accent hover:bg-brand-accent/90 text-white font-bold rounded-full shadow-glow-blue flex items-center justify-center gap-3 transition-all uppercase tracking-widest text-[10px] md:text-[11px] border-2 border-white/10 grain">
-                                <Send size={16} /> Invia Schedina
+                        <div className="mt-8 md:mt-10 flex justify-center">
+                            <button onClick={handleSubmit} className="w-full md:w-auto px-12 py-5 bg-brand-accent hover:bg-brand-accent/90 text-white font-black rounded-3xl shadow-glow-blue flex items-center justify-center gap-4 transition-all uppercase tracking-[0.2em] text-xs md:text-sm border-2 border-white/10 grain">
+                                <Send size={20} /> Invia Schedina
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div className="lg:col-span-4 space-y-4 md:space-y-6">
-                    <div className="bg-white dark:bg-brand-card rounded-[1.5rem] p-5 shadow-soft border border-gray-100 dark:border-white/5">
-                        <header className="flex items-center gap-2 mb-4">
-                            <ListChecks size={16} className="text-brand-accent" />
+                <div className="lg:col-span-4 space-y-6 md:space-y-8">
+                    <div className="bg-white dark:bg-brand-card rounded-[1.8rem] p-6 shadow-soft border border-gray-100 dark:border-white/5">
+                        <header className="flex items-center gap-3 mb-5">
+                            <ListChecks size={20} className="text-brand-accent" />
                             <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-900 dark:text-slate-100 leading-none">STATUS SCHEDINE INVIATE</h3>
                         </header>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-2 gap-3">
                             {DEFAULT_TEAMS.map(team => (
-                                <div key={team} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-brand-base border border-slate-100 dark:border-white/5">
-                                    <span className="text-[8px] md:text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase truncate pr-1">{team}</span>
-                                    <div className={`w-1.5 h-1.5 rounded-full ${currentWeekSubmissions.some(s => s.teamName === team) ? 'bg-brand-success' : 'bg-brand-danger'}`}></div>
+                                <div key={team} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-brand-base border border-slate-100 dark:border-white/5">
+                                    <span className="text-[10px] md:text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase truncate pr-2">{team}</span>
+                                    <div className={`w-2 h-2 rounded-full ${currentWeekSubmissions.some(s => s.teamName === team) ? 'bg-brand-success shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-brand-danger shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`}></div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     {curiosities.length > 0 && (
-                        <div className="bg-white dark:bg-brand-card rounded-[1.5rem] p-5 shadow-soft border-l-4 border-amber-500">
-                             <header className="flex items-center gap-2 mb-3">
-                                <Lightbulb size={16} className="text-amber-500" />
-                                <h3 className="font-bold text-[10px] uppercase tracking-widest text-slate-900 dark:text-slate-100">Curiosità</h3>
+                        <div className="bg-white dark:bg-brand-card rounded-[1.8rem] p-6 shadow-soft border-l-8 border-amber-500">
+                             <header className="flex items-center gap-3 mb-4 text-slate-700 dark:text-slate-100">
+                                <Lightbulb size={22} className="text-amber-500" />
+                                <h3 className="font-black text-[10px] uppercase tracking-widest text-slate-900 dark:text-slate-100">Curiosità</h3>
                             </header>
-                            <div className="space-y-2">
+                            <div className="space-y-3">
                                 {curiosities.map((tip, idx) => (
-                                    <p key={idx} className="text-[9px] font-bold text-slate-500 dark:text-slate-300 uppercase leading-relaxed tracking-tight flex gap-2">
-                                        <span className="text-amber-500">•</span> {tip}
+                                    <p key={idx} className="text-[10px] font-black text-slate-500 dark:text-slate-300 uppercase leading-relaxed tracking-tight flex gap-3">
+                                        <span className="text-amber-500 flex-shrink-0">•</span> {tip}
                                     </p>
                                 ))}
                             </div>
@@ -219,37 +219,37 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
 
         {activeTab === 'leaderboard' && (
             <div className="max-w-4xl mx-auto w-full px-2 animate-fadeIn">
-                <div className="bg-white dark:bg-brand-card rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 dark:border-white/5">
-                    <header className="p-8 md:p-12 border-b border-gray-100 dark:border-white/5 bg-slate-50/50 dark:bg-brand-base/20 flex items-center gap-6">
-                        <div className="bg-amber-500/10 p-4 rounded-2xl shadow-glow-blue grain"><Trophy className="text-amber-500 w-10 h-10" /></div>
+                <div className="bg-white dark:bg-brand-card rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100 dark:border-white/5">
+                    <header className="p-10 md:p-14 border-b border-gray-100 dark:border-white/5 bg-slate-50/50 dark:bg-brand-base/20 flex items-center gap-8">
+                        <div className="bg-amber-500/10 p-5 rounded-3xl shadow-glow-blue grain"><Trophy className="text-amber-500 w-12 h-12" /></div>
                         <div>
-                            <h2 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-2">Classifica Schedine</h2>
-                            <p className="text-[9px] md:text-xs text-slate-500 font-black uppercase tracking-[0.2em]">Analisi Precisione Manageriale 2025/26</p>
+                            <h2 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-3">Classifica Schedine</h2>
+                            <p className="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-[0.2em]">Analisi Precisione Manageriale 2025/26</p>
                         </div>
                     </header>
                     <div className="w-full">
                         <table className="w-full text-left table-fixed">
-                            <thead className="bg-slate-50 dark:bg-brand-base/50 text-slate-400 uppercase text-[9px] font-black tracking-widest border-b border-gray-100 dark:border-white/5">
+                            <thead className="bg-slate-50 dark:bg-brand-base/50 text-slate-400 uppercase text-[10px] md:text-xs font-black tracking-widest border-b border-gray-100 dark:border-white/5">
                                 <tr>
-                                    <th className="px-4 md:px-6 py-6 w-[12%]">#</th>
-                                    <th className="px-2 md:px-6 py-6 w-[48%]">Manager</th>
-                                    <th className="px-2 md:px-6 py-6 w-[20%] text-center">Punti</th>
-                                    <th className="px-2 md:px-6 py-6 w-[20%] text-center">Last</th>
+                                    <th className="px-6 md:px-10 py-8 w-[15%]">#</th>
+                                    <th className="px-4 md:px-10 py-8 w-[45%]">Manager</th>
+                                    <th className="px-4 md:px-10 py-8 w-[20%] text-center">Punti</th>
+                                    <th className="px-4 md:px-10 py-8 w-[20%] text-center">Last</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                                 {leaderboard.map((row, idx) => (
-                                    <tr key={row.teamName} className={`${row.teamName === currentUser ? 'bg-brand-accent/[0.05]' : ''}`}>
-                                        <td className="px-4 md:px-6 py-6 font-black text-slate-400 text-xs md:text-base">
+                                    <tr key={row.teamName} className={`group hover:bg-brand-accent/[0.02] transition-colors ${row.teamName === currentUser ? 'bg-brand-accent/[0.05]' : ''}`}>
+                                        <td className="px-6 md:px-10 py-8 font-black text-slate-400 text-sm md:text-xl">
                                             {idx < 3 ? (idx === 0 ? "🥇" : idx === 1 ? "🥈" : "🥉") : `#${row.rank}`}
                                         </td>
-                                        <td className="px-2 md:px-6 py-6 font-black text-[11px] md:text-sm uppercase text-slate-900 dark:text-white truncate">
+                                        <td className="px-4 md:px-10 py-8 font-black text-sm md:text-lg uppercase text-slate-900 dark:text-white truncate tracking-tight">
                                             {row.teamName}
                                         </td>
-                                        <td className="px-2 md:px-6 py-6 text-center font-black text-brand-accent text-lg md:text-xl tabular-nums">
+                                        <td className="px-4 md:px-10 py-8 text-center font-black text-brand-accent text-2xl md:text-3xl tabular-nums">
                                             {row.totalCorrect}
                                         </td>
-                                        <td className="px-2 md:px-6 py-6 text-center text-xs md:text-[10px] font-black text-brand-success tabular-nums">
+                                        <td className="px-4 md:px-10 py-8 text-center text-sm md:text-base font-black text-brand-success tabular-nums">
                                             +{row.lastWeekCorrect}
                                         </td>
                                     </tr>

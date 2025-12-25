@@ -111,7 +111,7 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                  <h2 className="text-2xl font-black mb-1 text-slate-900 dark:text-white tracking-tight uppercase">Accesso Schedine</h2>
                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-10">Identifica la tua squadra</p>
                  <form onSubmit={handleLogin} className="flex flex-col gap-5">
-                    <input name="username" type="text" autoFocus placeholder="NOME SQUADRA" className="bg-slate-50 dark:bg-brand-base border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 text-center font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-accent uppercase placeholder:text-slate-300 placeholder:font-black text-base" />
+                    <input name="username" type="text" autoFocus placeholder="NOME SQUADRA" className="bg-slate-50 dark:bg-brand-base border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 text-center font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-accent uppercase placeholder:text-slate-400/20 dark:placeholder:text-slate-500/20 placeholder:font-black text-base" />
                     {loginError && <p className="text-brand-danger text-[11px] font-bold uppercase tracking-wide">{loginError}</p>}
                     <button type="submit" className="bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs shadow-glow-blue grain transition-all active:scale-95">Entra</button>
                  </form>

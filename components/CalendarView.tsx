@@ -38,7 +38,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ matches, frozenMatch
   }
 
   return (
-    <div className="space-y-5 w-full max-w-full mx-auto animate-fadeIn px-1 md:px-0">
+    <div className="space-y-3 w-full max-w-full mx-auto animate-fadeIn px-1 md:px-0">
       <div className="bg-white dark:bg-brand-card rounded-2xl p-2.5 md:p-5 shadow-soft border border-gray-200 dark:border-white/5 flex flex-wrap md:flex-nowrap justify-between items-center gap-3 transition-colors">
         <div className="flex items-center gap-3 md:gap-5">
           <div className="p-2 md:p-3.5 bg-brand-accent/10 rounded-xl relative flex-shrink-0">
@@ -67,7 +67,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ matches, frozenMatch
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-2 md:gap-4">
         {currentMatches.map((match) => {
             const h2hDesc = getH2HDescription(matches, match.homeTeam, match.awayTeam);
             const headToHead = getHeadToHeadHistory(matches, match.homeTeam, match.awayTeam);
@@ -75,41 +75,33 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ matches, frozenMatch
             const awayWinner = match.isPlayed && (match.awayScore || 0) > (match.homeScore || 0);
 
             return (
-              <div key={match.id} className="bg-white dark:bg-brand-card rounded-[1.5rem] md:rounded-[1.8rem] border border-gray-200 dark:border-white/5 shadow-soft flex flex-col overflow-hidden hover:border-brand-accent/30 transition-all duration-300">
-                <div className="p-4 md:p-6 flex flex-col min-w-0 flex-1">
-                    <div className="flex-1 flex flex-col justify-center gap-3 md:gap-4">
+              <div key={match.id} className="bg-white dark:bg-brand-card rounded-[1rem] md:rounded-[1.8rem] border border-gray-200 dark:border-white/5 shadow-soft flex flex-col overflow-hidden hover:border-brand-accent/30 transition-all duration-300 min-h-[160px] md:min-h-[220px]">
+                <div className="p-2.5 md:p-5 flex flex-col min-w-0 flex-1 justify-center">
+                    <div className="flex-1 flex flex-col justify-center gap-2 md:gap-4">
                         <div className={`flex items-center justify-between group ${onTeamClick ? 'cursor-pointer' : ''}`} onClick={(e) => handleTeamClick(match.homeTeam, e)}>
-                            <div className="flex items-center gap-2.5 md:gap-3.5 min-w-0">
-                                <span className={`text-xs md:text-sm font-black truncate tracking-tight ${homeWinner ? 'text-brand-accent' : 'text-slate-900 dark:text-slate-100'} group-hover:text-brand-accent transition-colors`}>{match.homeTeam}</span>
-                            </div>
-                            <span className="font-mono font-black text-lg md:text-xl tabular-nums text-slate-900 dark:text-slate-100 pl-3">{match.isPlayed ? match.homeScore : '-'}</span>
+                            <span className={`text-[10px] md:text-sm font-black truncate tracking-tight uppercase ${homeWinner ? 'text-brand-accent' : 'text-slate-900 dark:text-slate-100'} group-hover:text-brand-accent transition-colors pr-1`}>{match.homeTeam}</span>
+                            <span className="font-mono font-black text-sm md:text-xl tabular-nums text-slate-900 dark:text-slate-100">{match.isPlayed ? match.homeScore : '-'}</span>
                         </div>
                         <div className={`flex items-center justify-between group ${onTeamClick ? 'cursor-pointer' : ''}`} onClick={(e) => handleTeamClick(match.awayTeam, e)}>
-                            <div className="flex items-center gap-2.5 md:gap-3.5 min-w-0">
-                                <span className={`text-xs md:text-sm font-black truncate tracking-tight ${awayWinner ? 'text-brand-accent' : 'text-slate-900 dark:text-slate-100'} group-hover:text-brand-accent transition-colors`}>{match.awayTeam}</span>
-                            </div>
-                            <span className="font-mono font-black text-lg md:text-xl tabular-nums text-slate-900 dark:text-slate-100 pl-3">{match.isPlayed ? match.awayScore : '-'}</span>
+                            <span className={`text-[10px] md:text-sm font-black truncate tracking-tight uppercase ${awayWinner ? 'text-brand-accent' : 'text-slate-900 dark:text-slate-100'} group-hover:text-brand-accent transition-colors pr-1`}>{match.awayTeam}</span>
+                            <span className="font-mono font-black text-sm md:text-xl tabular-nums text-slate-900 dark:text-slate-100">{match.isPlayed ? match.awayScore : '-'}</span>
                         </div>
                     </div>
                 </div>
                 
-                <div className="px-4 py-3 bg-slate-50 dark:bg-brand-base/30 min-h-[48px] md:min-h-[64px] flex items-center justify-center border-t border-slate-100 dark:border-white/5">
-                    <div className="text-[8px] md:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight leading-tight text-center px-1">
+                <div className="px-2 py-2 md:py-3 bg-slate-50 dark:bg-brand-base/30 flex items-center justify-center border-t border-slate-100 dark:border-white/5">
+                    <div className="text-[8px] md:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight leading-tight text-center px-0.5">
                         {h2hDesc}
                     </div>
                 </div>
 
                 {headToHead.length > 0 && (
-                  <div className="p-2 md:p-3 bg-slate-100/30 dark:bg-brand-base/10 border-t border-slate-100 dark:border-white/5">
-                      <div className="flex flex-wrap justify-center gap-1.5">
-                          {headToHead.slice(-2).reverse().map((h) => (
-                              <div key={h.id} className="px-1.5 py-1 md:px-3 md:py-1.5 rounded-lg bg-white dark:bg-brand-card border border-slate-200 dark:border-white/5 text-[7px] md:text-[9px] font-mono font-black text-slate-500 dark:text-slate-400 shadow-sm flex items-center gap-1.5">
-                                  <span className="uppercase">{h.homeTeam}</span>
-                                  <span className="bg-slate-100 dark:bg-brand-base px-1.5 py-0.5 rounded text-brand-accent">{h.homeScore}-{h.awayScore}</span>
-                                  <span className="uppercase">{h.awayTeam}</span>
-                              </div>
-                          ))}
-                      </div>
+                  <div className="p-2 md:p-3 bg-slate-100/30 dark:bg-brand-base/10 border-t border-slate-100 dark:border-white/5 flex flex-col gap-1.5">
+                      {headToHead.slice(-2).reverse().map((h) => (
+                          <div key={h.id} className="text-center text-[7.5px] md:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-tight leading-none md:leading-normal">
+                              {h.matchday}a: {h.homeTeam.substring(0,6)} <span className="text-brand-accent">{h.homeScore}-{h.awayScore}</span> {h.awayTeam.substring(0,6)}
+                          </div>
+                      ))}
                   </div>
                 )}
               </div>

@@ -1,8 +1,6 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
-import { Trophy, Swords, Settings, CalendarDays, Ticket, Sun, Moon, CloudOff, Cloud, Home } from 'lucide-react';
+import { Trophy, Swords, Settings, CalendarDays, Ticket, Sun, Moon, Home } from 'lucide-react';
 import { parseCSV, calculateCampionato, calculateBattleRoyale, calculateSchedineLeaderboard } from './services/leagueService';
-// Fix: Corrected SchedinaAdjustment to SchedineAdjustment to match the exported type
 import { Match, Competition, SchedinaSubmission, SchedineAdjustment } from './types';
 import { 
     supabase, 
@@ -43,15 +41,12 @@ const SoccerBallIcon = ({ size = 20 }: { size?: number }) => (
 function App() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [schedineSubmissions, setSchedineSubmissions] = useState<SchedinaSubmission[]>([]);
-  // Fix: SchedineAdjustment is now correctly imported
   const [schedineAdjustments, setSchedineAdjustments] = useState<SchedineAdjustment>({});
   const [frozenMatchdays, setFrozenMatchdays] = useState<number[]>([]);
-  // Changed default tab to 'Schedine'
   const [activeTab, setActiveTab] = useState<Competition | 'Admin' | 'Calendar' | 'Schedine' | 'Dashboard'>('Schedine');
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const initApp = async () => {
@@ -72,13 +67,10 @@ function App() {
         }
 
         if (supabase) {
-            setIsConnected(true);
             subscribeToData('matches', (data) => data && setMatches(data));
             subscribeToData('schedine', (data) => data && setSchedineSubmissions(data));
             subscribeToData('adjustments', (data) => data && setSchedineAdjustments(data));
             subscribeToData('frozen', (data) => data && setFrozenMatchdays(data));
-        } else {
-            setIsConnected(false);
         }
         setIsInitialized(true);
     };
@@ -140,6 +132,11 @@ function App() {
     if (supabase) saveData('schedine', updatedSubmissions);
   };
 
+  const navigateToTab = (tab: any) => {
+    setSelectedTeam(null);
+    setActiveTab(tab);
+  };
+
   const renderContent = () => {
     if (!isInitialized) return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-brand-base text-slate-400">
@@ -147,14 +144,15 @@ function App() {
             <div className="font-bold uppercase tracking-widest text-xs">Stadium Loading...</div>
         </div>
     );
+    
     if (selectedTeam) return <TeamProfile teamName={selectedTeam} matches={matches} onBack={() => setSelectedTeam(null)} />;
+    
     switch (activeTab) {
-      case 'Dashboard': return <Dashboard campionatoStats={campionatoStats} battleRoyaleStats={battleRoyaleStats} matches={matches} schedineSubmissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onNavigate={setActiveTab} onTeamClick={setSelectedTeam} />;
+      case 'Dashboard': return <Dashboard campionatoStats={campionatoStats} battleRoyaleStats={battleRoyaleStats} matches={matches} schedineSubmissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onNavigate={navigateToTab} onTeamClick={setSelectedTeam} />;
       case Competition.CAMPIONATO: return <LeagueTable stats={campionatoStats} title="Campionato" type={Competition.CAMPIONATO} onTeamClick={setSelectedTeam} />;
       case Competition.BATTLE_ROYALE: return <LeagueTable stats={battleRoyaleStats} title="Battle Royale" type={Competition.BATTLE_ROYALE} onTeamClick={setSelectedTeam} />;
       case 'Calendar': return <CalendarView matches={matches} frozenMatchdays={frozenMatchdays} onTeamClick={setSelectedTeam} />;
       case 'Schedine': return <Schedine matches={matches} legacyData={LEGACY_SCHEDINE_DATA} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onSubmit={handleSchedinaSubmit} />;
-      // Fix: Changed adjustments={adjustments} to adjustments={schedineAdjustments}
       case 'Admin': return <AdminPanel matches={matches} schedineStats={schedineStats} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onUpdateMatch={handleUpdateMatch} onUpdateSchedineAdjustment={handleUpdateAdjustment} onDeleteSubmission={handleDeleteSubmission} onToggleFreeze={handleToggleFreeze} onReset={handleReset} />;
       default: return null;
     }
@@ -162,45 +160,39 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#F8F9FB] dark:bg-brand-base text-gray-900 dark:text-slate-200 transition-colors duration-300">
-        {isInitialized && !selectedTeam && (
-            <header className="sticky top-0 z-50 w-full bg-[#F8F9FB]/40 dark:bg-brand-base/40 backdrop-blur-2xl border-b border-gray-200 dark:border-white/5 transition-all duration-300 grain">
-                <div className="container mx-auto px-4 py-3 md:py-4 max-w-[1400px] flex flex-col lg:flex-row justify-between items-center gap-4">
-                    <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-lg md:text-xl font-medium tracking-tighter text-gray-900 dark:text-white flex items-center gap-2">
-                                <span className="bg-brand-accent text-white p-1.5 rounded-lg shadow-glow-blue hidden sm:block grain">
-                                    <SoccerBallIcon size={16} />
-                                </span>
-                                FantaWizz <span className="text-brand-accent font-semibold">CTA</span>
-                            </h1>
+        {isInitialized && (
+            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] px-4 w-full max-w-fit pointer-events-none">
+                <header className="pointer-events-auto bg-white/70 dark:bg-brand-card/70 backdrop-blur-2xl border border-gray-200 dark:border-white/10 rounded-3xl shadow-soft py-1.5 px-2 md:px-3 flex items-center gap-2 md:gap-4 grain transition-all duration-300">
+                    <div className="flex items-center gap-1 bg-gray-100/50 dark:bg-brand-base/50 p-1.5 rounded-2xl border border-gray-200 dark:border-white/5 mr-1 hidden lg:flex">
+                        <div className="bg-brand-accent text-white p-1.5 rounded-xl shadow-glow-blue grain">
+                            <SoccerBallIcon size={18} />
                         </div>
+                        <span className="text-xs font-black uppercase tracking-tighter px-2 text-slate-900 dark:text-white">Wizz</span>
                     </div>
+
+                    <nav className="flex items-center gap-1 md:gap-2">
+                        <NavButton active={activeTab === 'Schedine' && !selectedTeam} onClick={() => navigateToTab('Schedine')} icon={<Ticket size={18} />} label="Gioca" />
+                        <NavButton active={activeTab === 'Dashboard' && !selectedTeam} onClick={() => navigateToTab('Dashboard')} icon={<Home size={18} />} label="Home" />
+                        <NavButton active={activeTab === Competition.CAMPIONATO && !selectedTeam} onClick={() => navigateToTab(Competition.CAMPIONATO)} icon={<Trophy size={18} />} label="Classifica" />
+                        <NavButton active={activeTab === Competition.BATTLE_ROYALE && !selectedTeam} onClick={() => navigateToTab(Competition.BATTLE_ROYALE)} icon={<Swords size={18} />} label="Royale" />
+                        <NavButton active={activeTab === 'Calendar' && !selectedTeam} onClick={() => navigateToTab('Calendar')} icon={<CalendarDays size={18} />} label="Giornate" />
+                    </nav>
                     
-                    <div className="flex items-center gap-2 bg-white/50 dark:bg-brand-card/50 p-1 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 backdrop-blur-sm">
-                        <nav className="flex items-center gap-1">
-                            <NavButton active={activeTab === 'Schedine'} onClick={() => setActiveTab('Schedine')} icon={<Ticket size={14} />} label="Schedine" />
-                            <NavButton active={activeTab === 'Dashboard'} onClick={() => setActiveTab('Dashboard')} icon={<Home size={14} />} label="Home" />
-                            <NavButton active={activeTab === Competition.CAMPIONATO} onClick={() => setActiveTab(Competition.CAMPIONATO)} icon={<Trophy size={14} />} label="Campionato" />
-                            <NavButton active={activeTab === Competition.BATTLE_ROYALE} onClick={() => setActiveTab(Competition.BATTLE_ROYALE)} icon={<Swords size={14} />} label="Royale" />
-                            <NavButton active={activeTab === 'Calendar'} onClick={() => setActiveTab('Calendar')} icon={<CalendarDays size={14} />} label="Calendario" />
-                        </nav>
-                        
-                        <div className="w-px h-6 bg-gray-200 dark:bg-white/10 mx-1"></div>
-                        
-                        <div className="flex items-center gap-1">
-                             <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2 rounded-xl text-slate-400 hover:text-brand-accent transition-all hover:bg-white/10">
-                                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-                             </button>
-                             <button onClick={() => setActiveTab('Admin')} className={`p-2 rounded-xl transition-all ${activeTab === 'Admin' ? 'bg-brand-accent/20 text-brand-accent grain' : 'text-slate-400 hover:text-brand-accent hover:bg-white/10'}`}>
-                                <Settings size={16} />
-                             </button>
-                        </div>
+                    <div className="w-px h-8 bg-gray-200 dark:bg-white/10 mx-1 md:mx-2"></div>
+                    
+                    <div className="flex items-center gap-1 md:gap-2">
+                         <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2.5 md:p-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-brand-accent transition-all hover:bg-brand-accent/10 dark:hover:bg-white/5">
+                            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                         </button>
+                         <button onClick={() => navigateToTab('Admin')} className={`p-2.5 md:p-3 rounded-2xl transition-all ${activeTab === 'Admin' && !selectedTeam ? 'bg-brand-accent text-white shadow-glow-blue grain' : 'text-slate-500 dark:text-slate-400 hover:text-brand-accent hover:bg-brand-accent/10 dark:hover:bg-white/5'}`}>
+                            <Settings size={20} />
+                         </button>
                     </div>
-                </div>
-            </header>
+                </header>
+            </div>
         )}
 
-        <div className="container mx-auto px-4 py-6 max-w-[1400px]">
+        <div className="container mx-auto px-4 pt-24 pb-12 max-w-[1400px]">
             <main>{renderContent()}</main>
         </div>
     </div>
@@ -208,7 +200,7 @@ function App() {
 }
 
 const NavButton: React.FC<{ active: boolean; onClick: () => void; icon: React.ReactNode; label: string }> = ({ active, onClick, icon, label }) => (
-  <button onClick={onClick} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] md:text-[12px] font-medium uppercase tracking-tighter transition-all duration-300 ${active ? 'active-nav-pill text-white shadow-glow-blue grain' : 'text-slate-500 hover:text-brand-accent hover:bg-brand-accent/10 dark:hover:text-white dark:hover:bg-white/5'}`}>
+  <button onClick={onClick} className={`flex items-center gap-2 px-3 md:px-5 py-2.5 md:py-3 rounded-2xl text-[10px] md:text-sm font-black uppercase tracking-tighter transition-all duration-300 ${active ? 'active-nav-pill text-white shadow-glow-blue grain' : 'text-slate-500 dark:text-slate-400 hover:text-brand-accent hover:bg-brand-accent/10 dark:hover:text-white dark:hover:bg-white/5'}`}>
     {icon}
     <span className="hidden sm:inline">{label}</span>
   </button>

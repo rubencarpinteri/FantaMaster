@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { TeamStats, Match, SchedinaSubmission } from '../types';
 import { Trophy, Swords, CalendarDays, Ticket, ArrowRight, Snowflake, Lightbulb } from 'lucide-react';
@@ -92,24 +93,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-slate-50/30 dark:bg-transparent border-b border-gray-50 dark:border-white/5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                <th className="px-3 py-3 w-8 text-center">#</th>
+                                <th className="px-4 py-3 w-10 text-center">#</th>
                                 <th className="px-2 py-3 text-left">Squadra</th>
                                 <th className="px-2 py-3 text-center">Form</th>
-                                <th className="px-3 py-3 text-right">PT</th>
+                                <th className="px-4 py-3 text-right">PT</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                             {campionatoStats.slice(0, 10).map((team) => (
                                 <tr key={team.team} className="group/row hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
-                                    <td className="px-3 py-4 text-center font-bold text-slate-400 dark:text-slate-500 text-[10px]">#{team.rank}</td>
-                                    <td className="px-2 py-4 font-bold uppercase tracking-tight text-[11px] md:text-xs text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
+                                    <td className="px-4 py-4 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
+                                    <td className="px-2 py-4 font-bold uppercase tracking-tight text-xs md:text-sm text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
                                     <td className="px-2 py-4">
-                                        <div className="flex items-center justify-center gap-1">
+                                        <div className="flex items-center justify-center gap-1.5">
                                             {getTeamFormDots(team.team)}
                                         </div>
                                     </td>
-                                    <td className="px-3 py-4 text-right">
-                                        <span className="font-bold text-slate-900 dark:text-white text-xs tabular-nums">{team.points}</span>
+                                    <td className="px-4 py-4 text-right">
+                                        <span className="font-bold text-slate-900 dark:text-white text-sm tabular-nums">{team.points}</span>
                                     </td>
                                 </tr>
                             ))}
@@ -131,17 +132,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-slate-50/30 dark:bg-transparent border-b border-gray-50 dark:border-white/5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                <th className="px-6 py-3 w-10 text-center">#</th>
-                                <th className="px-4 py-3 text-left">Squadra</th>
-                                <th className="px-6 py-3 text-right">PT</th>
+                                <th className="px-4 py-3 w-10 text-center">#</th>
+                                <th className="px-2 py-3 text-left">Squadra</th>
+                                <th className="px-4 py-3 text-right">PT</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                             {battleRoyaleStats.slice(0, 10).map((team) => (
                                 <tr key={team.team} className="group/row hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onTeamClick(team.team)}>
-                                    <td className="px-6 py-4 w-10 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
-                                    <td className="px-4 py-4 font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
-                                    <td className="px-6 py-4 text-right">
+                                    <td className="px-4 py-4 w-10 text-center font-bold text-slate-400 dark:text-slate-500 text-[11px]">#{team.rank}</td>
+                                    <td className="px-2 py-4 font-bold uppercase tracking-wide text-xs md:text-sm text-slate-900 dark:text-slate-100 group-hover/row:text-brand-accent transition-colors truncate">{team.team}</td>
+                                    <td className="px-4 py-4 text-right">
                                         <span className="font-bold text-slate-900 dark:text-white text-sm tabular-nums">{team.points}</span>
                                     </td>
                                 </tr>
@@ -169,9 +170,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ campionatoStats, battleRoy
                     <div className="space-y-4">
                         {nextMatches.map(match => (
                             <div key={match.id} className="flex justify-between items-center px-4 py-4 rounded-2xl bg-slate-50 dark:bg-brand-base border border-slate-100 dark:border-white/5 transition-transform hover:scale-[1.02]">
-                                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 w-20 truncate text-right uppercase tracking-wide">{match.homeTeam}</span>
+                                <span className="text-xs md:text-sm font-bold text-slate-900 dark:text-slate-100 w-24 truncate text-right uppercase tracking-wide">{match.homeTeam}</span>
                                 <span className="text-[9px] font-black text-slate-300 dark:text-slate-600 px-3 tracking-widest">VS</span>
-                                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 w-20 truncate text-left uppercase tracking-wide">{match.awayTeam}</span>
+                                <span className="text-xs md:text-sm font-bold text-slate-900 dark:text-slate-100 w-24 truncate text-left uppercase tracking-wide">{match.awayTeam}</span>
                             </div>
                         ))}
                     </div>

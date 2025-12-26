@@ -131,7 +131,7 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                             type="text" 
                             autoFocus 
                             placeholder="NOME SQUADRA" 
-                            className="w-full bg-slate-50 dark:bg-brand-base border-2 border-slate-100 dark:border-white/5 rounded-2xl px-6 py-5 text-center font-black text-slate-900 dark:text-white outline-none focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10 uppercase placeholder:text-slate-300 dark:placeholder:text-slate-600 transition-all text-lg" 
+                            className="w-full bg-slate-50 dark:bg-brand-base border-2 border-slate-100 dark:border-white/5 rounded-2xl px-6 py-5 text-center font-black text-slate-900 dark:text-white outline-none focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10 uppercase placeholder:text-slate-300/30 dark:placeholder:text-slate-600/30 transition-all text-lg" 
                         />
                         {loginError && (
                             <div className="absolute -bottom-6 left-0 right-0">

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Trophy, Swords, Settings, CalendarDays, Ticket, Sun, Moon, Home } from 'lucide-react';
 import { parseCSV, calculateCampionato, calculateBattleRoyale, calculateSchedineLeaderboard } from './services/leagueService';
@@ -18,7 +17,7 @@ import { INITIAL_CSV_DATA, LEGACY_SCHEDINE_DATA } from './data/seedData';
 
 const BACKUP_STORAGE_KEY = 'fantasy_matches_backup_v10';
 
-const SoccerBallIcon = ({ size = 20 }: { size?: number }) => (
+export const SoccerBallIcon = ({ size = 20 }: { size?: number }) => (
   <svg 
     width={size} 
     height={size} 
@@ -154,7 +153,6 @@ function App() {
       case Competition.BATTLE_ROYALE: return <LeagueTable stats={battleRoyaleStats} title="Battle Royale" type={Competition.BATTLE_ROYALE} onTeamClick={setSelectedTeam} />;
       case 'Calendar': return <CalendarView matches={matches} frozenMatchdays={frozenMatchdays} onTeamClick={setSelectedTeam} />;
       case 'Schedine': return <Schedine matches={matches} legacyData={LEGACY_SCHEDINE_DATA} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onSubmit={handleSchedinaSubmit} />;
-      // Fix: Changed 'submissions' to 'schedineSubmissions'
       case 'Admin': return <AdminPanel matches={matches} schedineStats={schedineStats} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onUpdateMatch={handleUpdateMatch} onUpdateSchedineAdjustment={handleUpdateAdjustment} onDeleteSubmission={handleDeleteSubmission} onToggleFreeze={handleToggleFreeze} onReset={handleReset} />;
       default: return null;
     }
@@ -179,15 +177,15 @@ function App() {
                             <div className="bg-brand-accent text-white p-1.5 rounded-xl shadow-glow-blue grain">
                                 <SoccerBallIcon size={18} />
                             </div>
-                            <span className="text-xs font-black uppercase tracking-tighter px-2 text-slate-900 dark:text-white">Wizz</span>
+                            <span className="text-xs font-black uppercase tracking-tighter px-2 text-slate-900 dark:text-white">FantaWizz CTA</span>
                         </div>
 
                         <nav className="flex items-center gap-1 md:gap-2">
-                            <NavButton active={activeTab === 'Schedine' && !selectedTeam} onClick={() => navigateToTab('Schedine')} icon={<Ticket size={18} />} label="Gioca" />
+                            <NavButton active={activeTab === 'Schedine' && !selectedTeam} onClick={() => navigateToTab('Schedine')} icon={<Ticket size={18} />} label="Schedine" />
                             <NavButton active={activeTab === 'Dashboard' && !selectedTeam} onClick={() => navigateToTab('Dashboard')} icon={<Home size={18} />} label="Home" />
-                            <NavButton active={activeTab === Competition.CAMPIONATO && !selectedTeam} onClick={() => navigateToTab(Competition.CAMPIONATO)} icon={<Trophy size={18} />} label="Classifica" />
+                            <NavButton active={activeTab === Competition.CAMPIONATO && !selectedTeam} onClick={() => navigateToTab(Competition.CAMPIONATO)} icon={<Trophy size={18} />} label="Campionato" />
                             <NavButton active={activeTab === Competition.BATTLE_ROYALE && !selectedTeam} onClick={() => navigateToTab(Competition.BATTLE_ROYALE)} icon={<Swords size={18} />} label="Royale" />
-                            <NavButton active={activeTab === 'Calendar' && !selectedTeam} onClick={() => navigateToTab('Calendar')} icon={<CalendarDays size={18} />} label="Giornate" />
+                            <NavButton active={activeTab === 'Calendar' && !selectedTeam} onClick={() => navigateToTab('Calendar')} icon={<CalendarDays size={18} />} label="Calendario" />
                         </nav>
                         
                         <div className="w-px h-8 bg-gray-200 dark:bg-white/10 mx-1 md:mx-2"></div>

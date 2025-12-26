@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Match, DEFAULT_TEAMS, Prediction, SchedinaSubmission, LegacySchedineData, SchedineAdjustment } from '../types';
 import { getH2HDescription, calculateSchedineLeaderboard } from '../services/leagueService';
-import { Trophy, User, LogOut, Sparkles, Snowflake, Send, ListChecks, Medal, Clock, Lightbulb, TrendingUp } from 'lucide-react';
+import { Trophy, LogOut, Sparkles, Snowflake, Send, ListChecks, Medal, Clock, Lightbulb, TrendingUp } from 'lucide-react';
+import { SoccerBallIcon } from '../App';
 
 interface SchedineProps {
   matches: Match[];
@@ -105,16 +106,47 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
 
   if (!currentUser) {
       return (
-          <div className="fixed inset-0 top-16 flex items-center justify-center p-4 bg-[#F8F9FB] dark:bg-brand-base overflow-hidden z-[40]">
-             <div className="bg-white dark:bg-brand-card p-8 md:p-12 rounded-[2.5rem] shadow-soft border border-gray-100 dark:border-white/5 w-full max-w-sm text-center animate-fadeIn">
-                 <div className="w-16 h-16 bg-brand-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-glow-blue grain"><User className="w-8 h-8 text-brand-accent" /></div>
-                 <h2 className="text-2xl font-black mb-1 text-slate-900 dark:text-white tracking-tight uppercase">Accesso Schedine</h2>
-                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-10">Identifica la tua squadra</p>
-                 <form onSubmit={handleLogin} className="flex flex-col gap-5">
-                    <input name="username" type="text" autoFocus placeholder="NOME SQUADRA" className="bg-slate-50 dark:bg-brand-base border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 text-center font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-accent uppercase placeholder:text-slate-400/20 dark:placeholder:text-slate-500/20 placeholder:font-black text-base" />
-                    {loginError && <p className="text-brand-danger text-[11px] font-bold uppercase tracking-wide">{loginError}</p>}
-                    <button type="submit" className="bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs shadow-glow-blue grain transition-all active:scale-95">Entra</button>
+          <div className="fixed inset-0 flex justify-center items-start pt-64 px-4 bg-[#F8F9FB] dark:bg-brand-base overflow-hidden touch-none z-[70] select-none">
+             <div className="bg-white dark:bg-brand-card p-10 md:p-14 rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] border border-gray-100 dark:border-white/10 w-full max-w-sm text-center animate-fadeIn relative grain">
+                 {/* Soccer Ball Icon - increased spacing and ensured visibility */}
+                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-brand-accent rounded-[2rem] flex items-center justify-center shadow-glow-blue border-4 border-white dark:border-brand-card grain z-20">
+                    <div className="text-white">
+                        <SoccerBallIcon size={48} />
+                    </div>
+                 </div>
+                 
+                 <div className="mt-10 mb-10">
+                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">Accesso</h2>
+                    <p className="text-brand-accent text-[11px] font-black uppercase tracking-[0.3em] mt-3 opacity-80">FantaWizz CTA</p>
+                 </div>
+
+                 <form onSubmit={handleLogin} className="flex flex-col gap-6">
+                    <div className="relative">
+                        <input 
+                            name="username" 
+                            type="text" 
+                            autoFocus 
+                            placeholder="NOME SQUADRA" 
+                            className="w-full bg-slate-50 dark:bg-brand-base border-2 border-slate-100 dark:border-white/5 rounded-2xl px-6 py-5 text-center font-black text-slate-900 dark:text-white outline-none focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10 uppercase placeholder:text-slate-300 dark:placeholder:text-slate-600 transition-all text-lg" 
+                        />
+                        {loginError && (
+                            <div className="absolute -bottom-6 left-0 right-0">
+                                <p className="text-brand-danger text-[10px] font-black uppercase tracking-widest animate-bounce">{loginError}</p>
+                            </div>
+                        )}
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        className="bg-brand-accent hover:bg-brand-accent/90 active:scale-[0.98] text-white font-black py-5 rounded-2xl uppercase tracking-widest text-sm shadow-glow-blue grain transition-all border-b-4 border-black/20"
+                    >
+                        Entra in Stadio
+                    </button>
                  </form>
+                 
+                 <div className="mt-8 pt-8 border-t border-slate-100 dark:border-white/5">
+                    <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">SCRIVI LA TUA SQUADRA PER INIZIARE</p>
+                 </div>
              </div>
           </div>
       );

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Match, DEFAULT_TEAMS, Prediction, SchedinaSubmission, LegacySchedineData, SchedineAdjustment } from '../types';
 import { getH2HDescription, calculateSchedineLeaderboard } from '../services/leagueService';
@@ -31,16 +30,16 @@ const USER_STORAGE_KEY = 'fantasy_schedine_user_v1';
 
 export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustments, submissions, frozenMatchdays, onSubmit }) => {
   const [activeTab, setActiveTab] = useState<'play' | 'leaderboard'>('play');
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  
+  // Initialize currentUser synchronously from localStorage to prevent the "login flash" bug.
+  const [currentUser, setCurrentUser] = useState<string | null>(() => {
+      if (typeof window === 'undefined') return null;
+      const savedUser = localStorage.getItem(USER_STORAGE_KEY);
+      return (savedUser && DEFAULT_TEAMS.includes(savedUser)) ? savedUser : null;
+  });
+  
   const [loginError, setLoginError] = useState('');
   const [currentPredictions, setCurrentPredictions] = useState<Record<string, '1' | 'X' | '2'>>({});
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem(USER_STORAGE_KEY);
-    if (savedUser && DEFAULT_TEAMS.includes(savedUser)) {
-        setCurrentUser(savedUser);
-    }
-  }, []);
 
   const playedMatchdays = matches.filter(m => m.isPlayed).map(m => m.matchday);
   const maxMilestone = Math.max(0, ...playedMatchdays, ...frozenMatchdays);
@@ -107,20 +106,20 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
 
   if (!currentUser) {
       return (
-          <div className="fixed inset-0 flex justify-center items-start pt-32 px-4 bg-[#F8F9FB] dark:bg-brand-base overflow-hidden touch-none z-[70] select-none">
-             <div className="bg-white dark:bg-brand-card p-10 md:p-14 rounded-[3rem] shadow-[0_30px_70px_-20px_rgba(0,0,0,0.3)] dark:shadow-[0_30px_70px_-20px_rgba(0,0,0,0.7)] border border-gray-100 dark:border-white/10 w-full max-w-sm text-center animate-fadeIn relative overflow-visible">
+          <div className="fixed inset-0 flex justify-center items-start pt-48 px-4 bg-[#F8F9FB] dark:bg-brand-base overflow-hidden touch-none z-[70] select-none">
+             <div className="bg-white dark:bg-brand-card p-10 md:p-14 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.4)] dark:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] border border-gray-100 dark:border-white/10 w-full max-w-sm text-center animate-fadeIn relative overflow-visible">
                  
-                 {/* Internal Grain Background layer to prevent clipping the absolute icon */}
+                 {/* Internal Grain Background layer */}
                  <div className="absolute inset-0 rounded-[3rem] grain pointer-events-none opacity-20"></div>
 
-                 {/* Soccer Ball Icon - Placed outside grain to avoid overflow:hidden clipping */}
+                 {/* Soccer Ball Icon - Coherent with FantaWizz CTA style */}
                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-brand-accent rounded-[2rem] flex items-center justify-center shadow-glow-blue border-4 border-white dark:border-brand-card grain z-20">
                     <div className="text-white">
                         <SoccerBallIcon size={48} />
                     </div>
                  </div>
                  
-                 <div className="mt-10 mb-10 relative z-10">
+                 <div className="mt-12 mb-10 relative z-10">
                     <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">Accesso</h2>
                     <p className="text-brand-accent text-[11px] font-black uppercase tracking-[0.3em] mt-3 opacity-80">FantaWizz CTA</p>
                  </div>
@@ -145,7 +144,7 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                         type="submit" 
                         className="bg-brand-accent hover:bg-brand-accent/90 active:scale-[0.98] text-white font-black py-5 rounded-2xl uppercase tracking-widest text-sm shadow-glow-blue grain transition-all border-b-4 border-black/20"
                     >
-                        Entra in Stadio
+                        Entra in lega
                     </button>
                  </form>
                  

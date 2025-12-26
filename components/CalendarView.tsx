@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Match } from '../types';
 import { getH2HDescription, getHeadToHeadHistory } from '../services/leagueService';
@@ -99,7 +100,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ matches, frozenMatch
                   <div className="p-3 md:p-4 bg-slate-100/30 dark:bg-brand-base/10 border-t border-slate-100 dark:border-white/5 flex flex-col gap-2">
                       {headToHead.slice(-2).reverse().map((h) => (
                           <div key={h.id} className="text-center text-[9px] md:text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-tight leading-none md:leading-normal">
-                              {h.matchday}a: {h.homeTeam.substring(0,8)} <span className="text-brand-accent">{h.homeScore}-{h.awayScore}</span> {h.awayTeam.substring(0,8)}
+                              {h.matchday}a: {h.homeTeam} <span className="text-brand-accent">{h.homeScore}-{h.awayScore}</span> {h.awayTeam}
                           </div>
                       ))}
                   </div>

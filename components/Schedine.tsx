@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Match, DEFAULT_TEAMS, Prediction, SchedinaSubmission, LegacySchedineData, SchedineAdjustment } from '../types';
 import { getH2HDescription, calculateSchedineLeaderboard } from '../services/leagueService';
 import { Trophy, LogOut, Sparkles, Snowflake, Send, ListChecks, Medal, Clock, Lightbulb, TrendingUp } from 'lucide-react';
+import { SoccerBallIcon } from '../App';
 
 interface SchedineProps {
   matches: Match[];
@@ -26,31 +28,6 @@ const TEAM_ALIASES: Record<string, string> = {
 };
 
 const USER_STORAGE_KEY = 'fantasy_schedine_user_v1';
-
-const FantaWizzLogo = ({ size = 120 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-2xl">
-    {/* Background Shield Body */}
-    <path d="M200 360C140 320 80 260 80 140V100L200 40L320 100V140C320 260 260 320 200 360Z" fill="#0B0E14" />
-    
-    {/* Blue Outer Border */}
-    <path d="M200 365C135 325 75 265 75 140V95L200 35L325 95V140C325 265 265 325 200 365Z" stroke="#4C7DFF" strokeWidth="12" />
-    
-    {/* Pink Inner Accent Border */}
-    <path d="M200 340C150 305 100 250 100 140V110L200 60L300 110V140C300 250 250 305 200 340Z" stroke="#EF4444" strokeWidth="6" strokeOpacity="0.8" />
-    
-    {/* Top Symbol (Stylized A) */}
-    <path d="M175 135L200 85L225 135H215L200 105L185 135H175ZM170 145H230V135L200 120L170 135V145Z" fill="white" />
-    
-    {/* FANTAWIZZ text area background */}
-    <rect x="50" y="150" width="300" height="60" rx="8" fill="#0B0E14" stroke="#4C7DFF" strokeWidth="8" />
-    
-    {/* Text: FANTAWIZZ */}
-    <text x="200" y="192" fontFamily="Inter, sans-serif" fontSize="42" fontWeight="900" fill="white" textAnchor="middle" letterSpacing="-1">FANTAWIZZ</text>
-    
-    {/* Text: CTA */}
-    <text x="200" y="270" fontFamily="Inter, sans-serif" fontSize="74" fontWeight="900" fill="white" textAnchor="middle" letterSpacing="2">CTA</text>
-  </svg>
-);
 
 export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustments, submissions, frozenMatchdays, onSubmit }) => {
   const [activeTab, setActiveTab] = useState<'play' | 'leaderboard'>('play');
@@ -130,18 +107,20 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
 
   if (!currentUser) {
       return (
-          <div className="fixed inset-0 flex justify-center items-start pt-48 px-4 bg-[#F8F9FB] dark:bg-brand-base overflow-hidden touch-none z-[70] select-none">
-             <div className="bg-white dark:bg-brand-card p-10 md:p-14 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.4)] dark:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] border border-gray-100 dark:border-white/10 w-full max-w-sm text-center animate-fadeIn relative overflow-visible">
+          <div className="fixed inset-0 flex justify-center items-start pt-32 px-4 bg-[#F8F9FB] dark:bg-brand-base overflow-hidden touch-none z-[70] select-none">
+             <div className="bg-white dark:bg-brand-card p-10 md:p-14 rounded-[3rem] shadow-[0_30px_70px_-20px_rgba(0,0,0,0.3)] dark:shadow-[0_30px_70px_-20px_rgba(0,0,0,0.7)] border border-gray-100 dark:border-white/10 w-full max-w-sm text-center animate-fadeIn relative overflow-visible">
                  
-                 {/* Internal Grain Background layer */}
+                 {/* Internal Grain Background layer to prevent clipping the absolute icon */}
                  <div className="absolute inset-0 rounded-[3rem] grain pointer-events-none opacity-20"></div>
 
-                 {/* FantaWizz CTA Shield Logo - Perfectly positioned and scaled */}
-                 <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-40 flex items-center justify-center z-20 pointer-events-none drop-shadow-[0_20px_30px_rgba(0,0,0,0.3)]">
-                    <FantaWizzLogo size={160} />
+                 {/* Soccer Ball Icon - Placed outside grain to avoid overflow:hidden clipping */}
+                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-brand-accent rounded-[2rem] flex items-center justify-center shadow-glow-blue border-4 border-white dark:border-brand-card grain z-20">
+                    <div className="text-white">
+                        <SoccerBallIcon size={48} />
+                    </div>
                  </div>
                  
-                 <div className="mt-16 mb-10 relative z-10">
+                 <div className="mt-10 mb-10 relative z-10">
                     <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">Accesso</h2>
                     <p className="text-brand-accent text-[11px] font-black uppercase tracking-[0.3em] mt-3 opacity-80">FantaWizz CTA</p>
                  </div>

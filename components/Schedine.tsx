@@ -379,14 +379,14 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                                 <div>{new Date(sub.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
                                         </div>
-                                        {/* Matches Grid - Ordered by ID */}
-                                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                        {/* Matches Horizontal Scroll (Carousel on Mobile) */}
+                                        <div className="flex overflow-x-auto md:grid md:grid-cols-5 gap-3 md:gap-4 pb-2 md:pb-0 -mx-2 px-2 md:mx-0 md:px-0 snap-x custom-scrollbar">
                                             {nextMatches.map((match, i) => {
                                                 const pred = sub.predictions.find(p => p.matchId === match.id);
                                                 const predictionValue = pred ? pred.prediction : '-';
                                                 
                                                 return (
-                                                    <div key={match.id} className="flex flex-col items-center gap-2">
+                                                    <div key={match.id} className="min-w-[84px] md:min-w-0 flex-shrink-0 snap-start flex flex-col items-center gap-2">
                                                         <span className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-black border-2 shadow-sm grain ${predictionValue === '1' ? 'bg-brand-accent text-white border-brand-accent' : predictionValue === 'X' ? 'bg-slate-300 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-400/20' : predictionValue === '2' ? 'bg-brand-danger text-white border-brand-danger' : 'bg-gray-200 text-gray-400 border-gray-300'}`}>
                                                             {predictionValue}
                                                         </span>
@@ -483,7 +483,8 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                         </div>
                                     </div>
                                     
-                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                    {/* Matches Horizontal Scroll (Carousel on Mobile) */}
+                                    <div className="flex overflow-x-auto md:grid md:grid-cols-5 gap-3 md:gap-4 pb-2 md:pb-0 -mx-2 px-2 md:mx-0 md:px-0 snap-x custom-scrollbar">
                                         {historyMatches.map(match => {
                                             const pred = sub.predictions.find(p => p.matchId === match.id);
                                             const predictionValue = pred ? pred.prediction : '-';
@@ -492,7 +493,7 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                             const isWrong = actualResult && predictionValue !== actualResult;
 
                                             return (
-                                                <div key={match.id} className="flex flex-col items-center gap-2">
+                                                <div key={match.id} className="min-w-[90px] md:min-w-0 flex-shrink-0 snap-start flex flex-col items-center gap-2">
                                                     <span className={`w-12 h-12 flex items-center justify-center rounded-2xl text-lg font-black border-2 shadow-sm grain transition-all ${
                                                         isCorrect ? 'bg-brand-success text-white border-brand-success shadow-[0_0_15px_rgba(16,185,129,0.3)]' :
                                                         isWrong ? 'bg-brand-danger text-white border-brand-danger opacity-60' :

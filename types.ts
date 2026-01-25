@@ -82,6 +82,6 @@ export interface SchedineAdjustment {
 export const CSV_HEADER = "Matchday,HomeTeam,HomeFP,HomeGoals,AwayGoals,AwayFP,AwayTeam,Result";
 
 export const DEFAULT_TEAMS = [
-  "SPIAZE", "HORTO", "ROSAPROFONDA", "SATANIA", "SAYONARA", 
+  "SPIAZE", "HORTO", "PFP", "SATANIA", "SAYONARA", 
   "SQUADRADABBATTERE", "NINUZZO", "OFF", "ISAMU", "PRONOSTICI"
 ];

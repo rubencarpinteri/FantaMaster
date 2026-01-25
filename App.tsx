@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Trophy, Swords, Settings, CalendarDays, Ticket, Sun, Moon, Home } from 'lucide-react';
+import { Settings, CalendarDays, Ticket, Sun, Moon, Home } from 'lucide-react';
 import { parseCSV, calculateCampionato, calculateBattleRoyale, calculateSchedineLeaderboard } from './services/leagueService';
-import { Match, Competition, SchedinaSubmission, SchedineAdjustment } from './types';
+import { Match, SchedinaSubmission, SchedineAdjustment } from './types';
 import { 
     supabase, 
     saveData, 
     subscribeToData 
 } from './services/supabase';
-import { LeagueTable } from './components/LeagueTable';
 import { AdminPanel } from './components/AdminPanel';
 import { CalendarView } from './components/CalendarView';
 import { TeamProfile } from './components/TeamProfile';
@@ -38,12 +37,20 @@ export const SoccerBallIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 );
 
+// Helper to normalize legacy team names globally
+const normalizeTeamName = (name: string) => {
+    if (!name) return name;
+    const clean = name.trim().toUpperCase();
+    if (clean === 'ROSAPROFONDA' || clean === 'ROS' || clean === 'PFP') return 'PFP';
+    return name;
+};
+
 function App() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [schedineSubmissions, setSchedineSubmissions] = useState<SchedinaSubmission[]>([]);
   const [schedineAdjustments, setSchedineAdjustments] = useState<SchedineAdjustment>({});
   const [frozenMatchdays, setFrozenMatchdays] = useState<number[]>([]);
-  const [activeTab, setActiveTab] = useState<Competition | 'Admin' | 'Calendar' | 'Schedine' | 'Dashboard'>('Schedine');
+  const [activeTab, setActiveTab] = useState<'Admin' | 'Calendar' | 'Schedine' | 'Dashboard'>('Schedine');
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
@@ -51,24 +58,51 @@ function App() {
   useEffect(() => {
     const initApp = async () => {
         const localData = localStorage.getItem(BACKUP_STORAGE_KEY);
+        let loadedMatches: Match[] = [];
+
         if (localData) {
             try {
                 const parsed = JSON.parse(localData);
                 if (Array.isArray(parsed) && parsed.length > 0) {
-                    setMatches(parsed);
+                    loadedMatches = parsed;
                 } else {
-                    setMatches(parseCSV(INITIAL_CSV_DATA));
+                    loadedMatches = parseCSV(INITIAL_CSV_DATA);
                 }
             } catch (e) {
-                setMatches(parseCSV(INITIAL_CSV_DATA));
+                loadedMatches = parseCSV(INITIAL_CSV_DATA);
             }
         } else {
-            setMatches(parseCSV(INITIAL_CSV_DATA));
+            loadedMatches = parseCSV(INITIAL_CSV_DATA);
         }
 
+        // Sanitize matches immediately on load
+        const safeMatches = loadedMatches.map(m => ({
+            ...m,
+            homeTeam: normalizeTeamName(m.homeTeam),
+            awayTeam: normalizeTeamName(m.awayTeam)
+        }));
+        setMatches(safeMatches);
+
         if (supabase) {
-            subscribeToData('matches', (data) => data && setMatches(data));
-            subscribeToData('schedine', (data) => data && setSchedineSubmissions(data));
+            subscribeToData('matches', (data) => {
+                if (data) {
+                    const safe = data.map((m: Match) => ({
+                        ...m,
+                        homeTeam: normalizeTeamName(m.homeTeam),
+                        awayTeam: normalizeTeamName(m.awayTeam)
+                    }));
+                    setMatches(safe);
+                }
+            });
+            subscribeToData('schedine', (data) => {
+                if (data) {
+                    const safeSubmissions = data.map((s: SchedinaSubmission) => ({
+                        ...s,
+                        teamName: normalizeTeamName(s.teamName)
+                    }));
+                    setSchedineSubmissions(safeSubmissions);
+                }
+            });
             subscribeToData('adjustments', (data) => data && setSchedineAdjustments(data));
             subscribeToData('frozen', (data) => data && setFrozenMatchdays(data));
         }
@@ -111,7 +145,13 @@ function App() {
 
   const handleReset = () => {
     if (confirm("Sei sicuro di voler resettare TUTTI i dati?")) {
-        const defaultMatches = parseCSV(INITIAL_CSV_DATA);
+        // When resetting, ensure we load clean data with PFP
+        const rawMatches = parseCSV(INITIAL_CSV_DATA);
+        const defaultMatches = rawMatches.map(m => ({
+            ...m,
+            homeTeam: normalizeTeamName(m.homeTeam),
+            awayTeam: normalizeTeamName(m.awayTeam)
+        }));
         setMatches(defaultMatches);
         setSchedineSubmissions([]);
         setSchedineAdjustments({});
@@ -126,8 +166,10 @@ function App() {
   };
 
   const handleSchedinaSubmit = (submission: SchedinaSubmission) => {
-    const updatedSubmissions = schedineSubmissions.filter(s => !(s.teamName === submission.teamName && s.matchday === submission.matchday));
-    updatedSubmissions.push(submission);
+    // Normalize team name on submission just in case
+    const safeSubmission = { ...submission, teamName: normalizeTeamName(submission.teamName) };
+    const updatedSubmissions = schedineSubmissions.filter(s => !(s.teamName === safeSubmission.teamName && s.matchday === safeSubmission.matchday));
+    updatedSubmissions.push(safeSubmission);
     setSchedineSubmissions(updatedSubmissions);
     if (supabase) saveData('schedine', updatedSubmissions);
   };
@@ -149,8 +191,6 @@ function App() {
     
     switch (activeTab) {
       case 'Dashboard': return <Dashboard campionatoStats={campionatoStats} battleRoyaleStats={battleRoyaleStats} matches={matches} schedineSubmissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onNavigate={navigateToTab} onTeamClick={setSelectedTeam} />;
-      case Competition.CAMPIONATO: return <LeagueTable stats={campionatoStats} title="Campionato" type={Competition.CAMPIONATO} onTeamClick={setSelectedTeam} />;
-      case Competition.BATTLE_ROYALE: return <LeagueTable stats={battleRoyaleStats} title="Battle Royale" type={Competition.BATTLE_ROYALE} onTeamClick={setSelectedTeam} />;
       case 'Calendar': return <CalendarView matches={matches} frozenMatchdays={frozenMatchdays} onTeamClick={setSelectedTeam} />;
       case 'Schedine': return <Schedine matches={matches} legacyData={LEGACY_SCHEDINE_DATA} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onSubmit={handleSchedinaSubmit} />;
       case 'Admin': return <AdminPanel matches={matches} schedineStats={schedineStats} adjustments={schedineAdjustments} submissions={schedineSubmissions} frozenMatchdays={frozenMatchdays} onUpdateMatch={handleUpdateMatch} onUpdateSchedineAdjustment={handleUpdateAdjustment} onDeleteSubmission={handleDeleteSubmission} onToggleFreeze={handleToggleFreeze} onReset={handleReset} />;
@@ -182,9 +222,7 @@ function App() {
 
                         <nav className="flex items-center gap-1 md:gap-2">
                             <NavButton active={activeTab === 'Schedine' && !selectedTeam} onClick={() => navigateToTab('Schedine')} icon={<Ticket size={18} />} label="Schedine" />
-                            <NavButton active={activeTab === 'Dashboard' && !selectedTeam} onClick={() => navigateToTab('Dashboard')} icon={<Home size={18} />} label="Home" />
-                            <NavButton active={activeTab === Competition.CAMPIONATO && !selectedTeam} onClick={() => navigateToTab(Competition.CAMPIONATO)} icon={<Trophy size={18} />} label="Campionato" />
-                            <NavButton active={activeTab === Competition.BATTLE_ROYALE && !selectedTeam} onClick={() => navigateToTab(Competition.BATTLE_ROYALE)} icon={<Swords size={18} />} label="Royale" />
+                            <NavButton active={activeTab === 'Dashboard' && !selectedTeam} onClick={() => navigateToTab('Dashboard')} icon={<Home size={18} />} label="Classifiche" />
                             <NavButton active={activeTab === 'Calendar' && !selectedTeam} onClick={() => navigateToTab('Calendar')} icon={<CalendarDays size={18} />} label="Calendario" />
                         </nav>
                         

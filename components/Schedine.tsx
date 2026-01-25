@@ -379,21 +379,24 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                                 <div>{new Date(sub.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
                                         </div>
-                                        {/* Matches Horizontal Scroll (Carousel on Mobile) */}
-                                        <div className="flex overflow-x-auto md:grid md:grid-cols-5 gap-3 md:gap-4 pb-2 md:pb-0 -mx-2 px-2 md:mx-0 md:px-0 snap-x custom-scrollbar">
+                                        {/* Matches Grid - Compact 5-col Grid for Mobile Glanceability */}
+                                        <div className="grid grid-cols-5 gap-1 md:gap-4">
                                             {nextMatches.map((match, i) => {
                                                 const pred = sub.predictions.find(p => p.matchId === match.id);
                                                 const predictionValue = pred ? pred.prediction : '-';
                                                 
                                                 return (
-                                                    <div key={match.id} className="min-w-[84px] md:min-w-0 flex-shrink-0 snap-start flex flex-col items-center gap-2">
-                                                        <span className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-black border-2 shadow-sm grain ${predictionValue === '1' ? 'bg-brand-accent text-white border-brand-accent' : predictionValue === 'X' ? 'bg-slate-300 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-400/20' : predictionValue === '2' ? 'bg-brand-danger text-white border-brand-danger' : 'bg-gray-200 text-gray-400 border-gray-300'}`}>
+                                                    <div key={match.id} className="flex flex-col items-center gap-1.5 md:gap-2">
+                                                        {/* Prediction Badge */}
+                                                        <span className={`w-full aspect-square max-w-[40px] md:max-w-none md:w-12 md:h-12 flex items-center justify-center rounded-lg md:rounded-2xl text-xs md:text-lg font-black border md:border-2 shadow-sm grain transition-all ${predictionValue === '1' ? 'bg-brand-accent text-white border-brand-accent' : predictionValue === 'X' ? 'bg-slate-300 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-400/20' : predictionValue === '2' ? 'bg-brand-danger text-white border-brand-danger' : 'bg-gray-200 text-gray-400 border-gray-300'}`}>
                                                             {predictionValue}
                                                         </span>
-                                                        <div className="bg-white/50 dark:bg-white/5 px-2 py-1 rounded-lg border border-slate-200 dark:border-white/5 w-full">
-                                                            <div className="text-[9px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none text-center mb-1 truncate" title={match.homeTeam}>{match.homeTeam}</div>
-                                                            <div className="h-px bg-slate-200 dark:bg-white/10 w-full mb-1"></div>
-                                                            <div className="text-[9px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none text-center truncate" title={match.awayTeam}>{match.awayTeam}</div>
+                                                        
+                                                        {/* Match Info - Compact Text Only */}
+                                                        <div className="flex flex-col items-center w-full">
+                                                             <span className="text-[7px] md:text-[9px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none truncate w-full text-center" title={match.homeTeam}>{match.homeTeam}</span>
+                                                             <span className="text-[7px] md:text-[8px] text-slate-300 dark:text-slate-600 font-black leading-none my-0.5">vs</span>
+                                                             <span className="text-[7px] md:text-[9px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none truncate w-full text-center" title={match.awayTeam}>{match.awayTeam}</span>
                                                         </div>
                                                     </div>
                                                 );
@@ -483,8 +486,8 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                         </div>
                                     </div>
                                     
-                                    {/* Matches Horizontal Scroll (Carousel on Mobile) */}
-                                    <div className="flex overflow-x-auto md:grid md:grid-cols-5 gap-3 md:gap-4 pb-2 md:pb-0 -mx-2 px-2 md:mx-0 md:px-0 snap-x custom-scrollbar">
+                                    {/* Matches Grid - Compact 5-col Grid for Mobile */}
+                                    <div className="grid grid-cols-5 gap-1 md:gap-4">
                                         {historyMatches.map(match => {
                                             const pred = sub.predictions.find(p => p.matchId === match.id);
                                             const predictionValue = pred ? pred.prediction : '-';
@@ -493,24 +496,28 @@ export const Schedine: React.FC<SchedineProps> = ({ matches, legacyData, adjustm
                                             const isWrong = actualResult && predictionValue !== actualResult;
 
                                             return (
-                                                <div key={match.id} className="min-w-[90px] md:min-w-0 flex-shrink-0 snap-start flex flex-col items-center gap-2">
-                                                    <span className={`w-12 h-12 flex items-center justify-center rounded-2xl text-lg font-black border-2 shadow-sm grain transition-all ${
+                                                <div key={match.id} className="flex flex-col items-center gap-1.5 md:gap-2">
+                                                    {/* Prediction Badge */}
+                                                    <span className={`w-full aspect-square max-w-[40px] md:max-w-none md:w-12 md:h-12 flex items-center justify-center rounded-lg md:rounded-2xl text-xs md:text-lg font-black border md:border-2 shadow-sm grain transition-all ${
                                                         isCorrect ? 'bg-brand-success text-white border-brand-success shadow-[0_0_15px_rgba(16,185,129,0.3)]' :
                                                         isWrong ? 'bg-brand-danger text-white border-brand-danger opacity-60' :
                                                         'bg-slate-100 dark:bg-brand-base text-slate-400 border-slate-200 dark:border-white/10'
                                                     }`}>
                                                         {predictionValue}
                                                     </span>
-                                                    <div className="bg-slate-50 dark:bg-brand-base/50 px-2.5 py-2 rounded-xl border border-slate-200 dark:border-white/5 w-full shadow-inner">
-                                                        <div className="flex justify-between items-center mb-1.5">
-                                                            <span className="text-[9px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none truncate max-w-[70%]">{match.homeTeam}</span>
-                                                            <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400 leading-none">{match.isPlayed && match.homeScore !== null ? match.homeScore : '-'}</span>
-                                                        </div>
-                                                        <div className="h-px bg-slate-200 dark:bg-white/10 w-full mb-1.5 opacity-50"></div>
-                                                        <div className="flex justify-between items-center">
-                                                            <span className="text-[9px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none truncate max-w-[70%]">{match.awayTeam}</span>
-                                                            <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400 leading-none">{match.isPlayed && match.awayScore !== null ? match.awayScore : '-'}</span>
-                                                        </div>
+                                                    
+                                                    {/* Match Info - Compact */}
+                                                    <div className="flex flex-col items-center w-full">
+                                                         <span className="text-[7px] md:text-[9px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none truncate w-full text-center">{match.homeTeam}</span>
+                                                         <span className="text-[7px] md:text-[8px] text-slate-300 dark:text-slate-600 font-black leading-none my-0.5">vs</span>
+                                                         <span className="text-[7px] md:text-[9px] font-black text-slate-900 dark:text-slate-300 uppercase leading-none truncate w-full text-center">{match.awayTeam}</span>
+                                                         
+                                                         {/* Optional Score for History */}
+                                                         {match.isPlayed && (
+                                                             <span className="text-[7px] md:text-[9px] font-mono font-black text-slate-500 dark:text-slate-400 leading-none mt-0.5 md:mt-1">
+                                                                {match.homeScore !== null ? `${match.homeScore}-${match.awayScore}` : ''}
+                                                             </span>
+                                                         )}
                                                     </div>
                                                 </div>
                                             );
